@@ -159,7 +159,7 @@ const seedAuditoria = async () => {
     await query(
       `INSERT INTO auditoria (id, usuario_id, usuario_email, rol, accion, modulo, descripcion, fecha)
        VALUES (?,?,?,?,?,?,?,?)
-       ON DUPLICATE KEY UPDATE descripcion = VALUES(descripcion)`,
+       ON DUPLICATE KEY UPDATE rol = VALUES(rol), descripcion = VALUES(descripcion)`,
       [a.id, userRows[0]?.id || null, a.usuario, a.rol, a.accion, a.modulo, a.descripcion, new Date(a.fecha)]
     );
   }
