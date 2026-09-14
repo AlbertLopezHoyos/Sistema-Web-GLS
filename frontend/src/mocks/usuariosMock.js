@@ -1,4 +1,4 @@
-import { ROLES } from '../constants/roles';
+import { ROLES } from '../constants/roles.js';
 
 export const DEMO_PASSWORD = 'demo123';
 

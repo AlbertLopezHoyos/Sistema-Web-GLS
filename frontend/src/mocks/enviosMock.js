@@ -1,4 +1,4 @@
-import { INITIAL_STATUS } from '../constants/shipmentStatus';
+import { INITIAL_STATUS } from '../constants/shipmentStatus.js';
 
 const baseEnvio = (codigo, data) => ({
   codigoEnvio: codigo,

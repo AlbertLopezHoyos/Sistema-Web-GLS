@@ -1,12 +1,19 @@
 import bcrypt from 'bcryptjs';
 import env from '../config/env.js';
 import { query, getConnection } from '../config/db.js';
-import { usuariosMock, DEMO_PASSWORD } from '../../../frontend/src/mocks/usuariosMock.js';
-import { clientesMock } from '../../../frontend/src/mocks/clientesMock.js';
-import { enviosMock } from '../../../frontend/src/mocks/enviosMock.js';
-import { historialMock } from '../../../frontend/src/mocks/historialMock.js';
-import { ubicacionesMock } from '../../../frontend/src/mocks/ubicacionesMock.js';
-import { auditoriaMock } from '../../../frontend/src/mocks/auditoriaMock.js';
+import { pathToFileURL } from 'url';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const mocks = path.resolve(__dirname, '../../../frontend/src/mocks');
+
+const { usuariosMock, DEMO_PASSWORD } = await import(pathToFileURL(path.join(mocks, 'usuariosMock.js')).href);
+const { clientesMock } = await import(pathToFileURL(path.join(mocks, 'clientesMock.js')).href);
+const { enviosMock } = await import(pathToFileURL(path.join(mocks, 'enviosMock.js')).href);
+const { historialMock } = await import(pathToFileURL(path.join(mocks, 'historialMock.js')).href);
+const { ubicacionesMock } = await import(pathToFileURL(path.join(mocks, 'ubicacionesMock.js')).href);
+const { auditoriaMock } = await import(pathToFileURL(path.join(mocks, 'auditoriaMock.js')).href);
 
 const ROLE_MAP = { admin: 'Administrador', operaciones: 'Operaciones', consulta: 'Consulta' };
 

@@ -1,4 +1,4 @@
-import { AREA_DEFAULT } from '../constants/appConfig';
+import { AREA_DEFAULT } from '../constants/appConfig.js';
 
 const evt = (codigo, estado, fecha, obs, extra = {}) => ({
   id: `${codigo}__${fecha}`,

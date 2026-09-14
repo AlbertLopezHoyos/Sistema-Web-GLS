@@ -1,4 +1,4 @@
-import { AREA_DEFAULT } from '../constants/appConfig';
+import { AREA_DEFAULT } from '../constants/appConfig.js';
 
 /**
  * La geolocalización implementada corresponde a puntos de control registrados
