@@ -33,6 +33,13 @@ export const authService = {
       throw new Error('Credenciales incorrectas');
     }
     if (!user.activo) {
+      logAudit({
+        accion: 'login_fallido',
+        modulo: 'Autenticación',
+        descripcion: 'Intento de inicio de sesión con usuario inactivo',
+        usuario: user.email,
+        rol: ROLE_LABELS[user.rol],
+      });
       throw new Error('Usuario inactivo. Contacte al administrador.');
     }
 

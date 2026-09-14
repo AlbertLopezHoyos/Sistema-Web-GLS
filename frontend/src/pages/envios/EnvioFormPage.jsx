@@ -14,6 +14,7 @@ import { calcularCotizacion } from '../../utils/cotizacionEnvio';
 import { ROUTES } from '../../constants/routes';
 
 const emptyParty = { nombres: '', documento: '', telefono: '', direccion: '' };
+const REQUIRED_LAST_TAB = 1; // 0: Cliente, 1: Datos del envío (2 y 3 opcionales)
 
 export const EnvioFormPage = () => {
   const { user } = useAuth();
@@ -72,40 +73,65 @@ export const EnvioFormPage = () => {
     },
   });
 
-  const validateCurrentTabs = (upToTab) => {
-    const payload = buildPayload();
-    const allErrors = validateEnvioForm(payload);
-    const fieldsForTabs = [];
-    for (let i = 0; i <= upToTab; i++) {
-      if (i === 0) fieldsForTabs.push(...Object.keys(allErrors).filter((k) => k.startsWith('remitente') || k.startsWith('destinatario')));
-      if (i === 1) fieldsForTabs.push(...Object.keys(allErrors).filter((k) => !k.startsWith('remitente') && !k.startsWith('destinatario')));
-    }
+  const isPartyField = (key) => key.startsWith('remitente') || key.startsWith('destinatario');
+
+  const validateRequiredTabsUpTo = (upToTab) => {
+    const allErrors = validateEnvioForm(buildPayload());
     const tabErrors = {};
-    fieldsForTabs.forEach((k) => { if (allErrors[k]) tabErrors[k] = allErrors[k]; });
+    for (let i = 0; i <= upToTab; i++) {
+      Object.keys(allErrors).forEach((key) => {
+        if (i === 0 && isPartyField(key)) tabErrors[key] = allErrors[key];
+        if (i === 1 && !isPartyField(key)) tabErrors[key] = allErrors[key];
+      });
+    }
     return tabErrors;
   };
 
-  const handleNextTab = () => {
-    setTabError('');
-    const tabErrors = validateCurrentTabs(activeTab);
-    if (Object.keys(tabErrors).length) {
-      setErrors(tabErrors);
+  const getFirstErrorTab = (tabErrors) => {
+    if (Object.keys(tabErrors).some(isPartyField)) return 0;
+    if (Object.keys(tabErrors).length) return 1;
+    return null;
+  };
+
+  const validateBeforeTab = (targetIndex) => {
+    if (targetIndex <= activeTab) return { valid: true, errors: {} };
+    const lastRequired = Math.min(targetIndex - 1, REQUIRED_LAST_TAB);
+    const errors = validateRequiredTabsUpTo(lastRequired);
+    return { valid: Object.keys(errors).length === 0, errors };
+  };
+
+  const handleTabChange = (targetIndex) => {
+    if (targetIndex === activeTab) return;
+
+    if (targetIndex < activeTab) {
+      setTabError('');
+      setActiveTab(targetIndex);
+      return;
+    }
+
+    const { valid, errors } = validateBeforeTab(targetIndex);
+    if (!valid) {
+      setErrors(errors);
       setTabError('Complete los campos obligatorios antes de continuar.');
       return;
     }
+
+    setTabError('');
     setErrors({});
-    setActiveTab((t) => t + 1);
+    setActiveTab(targetIndex);
   };
+
+  const handleNextTab = () => handleTabChange(activeTab + 1);
 
   const handleSubmitRequest = (e) => {
     e.preventDefault();
     setTabError('');
-    const allErrors = validateEnvioForm(buildPayload());
+    const allErrors = validateRequiredTabsUpTo(REQUIRED_LAST_TAB);
     if (Object.keys(allErrors).length) {
       setErrors(allErrors);
       setTabError('Revise los campos obligatorios en todas las secciones.');
-      if (Object.keys(allErrors).some((k) => k.startsWith('remitente') || k.startsWith('destinatario'))) setActiveTab(0);
-      else setActiveTab(1);
+      const firstTab = getFirstErrorTab(allErrors);
+      if (firstTab !== null) setActiveTab(firstTab);
       return;
     }
     setConfirmOpen(true);
@@ -146,7 +172,7 @@ export const EnvioFormPage = () => {
       {tabError && <Alert type="warning" message={tabError} onClose={() => setTabError('')} />}
       <div className="tabs">
         {tabs.map((t, i) => (
-          <button key={t} type="button" className={`tab ${activeTab === i ? 'active' : ''}`} onClick={() => setActiveTab(i)}>{t}</button>
+          <button key={t} type="button" className={`tab ${activeTab === i ? 'active' : ''}`} onClick={() => handleTabChange(i)}>{t}</button>
         ))}
       </div>
       <form className="form-sections" onSubmit={handleSubmitRequest}>
@@ -214,7 +240,7 @@ export const EnvioFormPage = () => {
         )}
         <div className="form-actions">
           <Button type="button" variant="ghost" onClick={() => navigate(ROUTES.ENVIOS)}>Cancelar</Button>
-          {activeTab > 0 && <Button type="button" variant="secondary" onClick={() => setActiveTab((t) => t - 1)}>Anterior</Button>}
+          {activeTab > 0 && <Button type="button" variant="secondary" onClick={() => handleTabChange(activeTab - 1)}>Anterior</Button>}
           {activeTab < tabs.length - 1 ? (
             <Button type="button" onClick={handleNextTab}>Siguiente</Button>
           ) : (
