@@ -3,6 +3,7 @@ import { getStore, setStore } from '../utils/dataStore';
 import { delay } from '../utils/storage';
 import { validateDocumento, validateTelefono, validateRequired } from '../utils/validation';
 import { normalizeText } from '../utils/formatters';
+import { logAudit } from '../utils/auditHelper';
 
 const validateCliente = (data) => {
   const errors = {};
@@ -59,6 +60,7 @@ export const clientesService = {
     };
     clientes.push(cliente);
     setStore(STORAGE_KEYS.CLIENTES, clientes);
+    logAudit({ accion: 'cliente_creado', modulo: 'Clientes', descripcion: `Cliente ${cliente.id} creado` });
     return cliente;
   },
 
@@ -81,6 +83,7 @@ export const clientesService = {
       fechaActualizacion: now,
     };
     setStore(STORAGE_KEYS.CLIENTES, clientes);
+    logAudit({ accion: 'cliente_modificado', modulo: 'Clientes', descripcion: `Cliente ${id} actualizado` });
     return clientes[idx];
   },
 

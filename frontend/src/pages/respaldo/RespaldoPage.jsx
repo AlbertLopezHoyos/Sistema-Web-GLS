@@ -36,7 +36,7 @@ export const RespaldoPage = () => {
 
   const handleRestaurar = async () => {
     setProcessing(true);
-    await respaldoService.restaurarRespaldo();
+    await respaldoService.restaurarRespaldo(user?.email);
     setProcessing(false);
     setSimModal('restaurar');
   };

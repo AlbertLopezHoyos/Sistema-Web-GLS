@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { FileText, FileSpreadsheet, Download } from 'lucide-react';
 import { reportesService } from '../../services/reportesService';
 import { PageHeader } from '../../components/common/PageHeader';
@@ -11,10 +11,12 @@ import { DataTable } from '../../components/common/DataTable';
 import { Badge } from '../../components/common/Badge';
 import { Button } from '../../components/common/Button';
 import { Loader } from '../../components/common/Loader';
+import { Alert } from '../../components/common/Alert';
 import { StatusChart } from '../../components/charts/StatusChart';
 import { TrendChart } from '../../components/charts/TrendChart';
 import { exportCSV, exportExcel, exportPDF, mapEnvioToRow } from '../../utils/exportUtils';
 import { formatDateTime } from '../../utils/formatters';
+import { logAudit } from '../../utils/auditHelper';
 import { SHIPMENT_STATUSES } from '../../constants/shipmentStatus';
 
 export const ReportesPage = () => {
@@ -24,31 +26,46 @@ export const ReportesPage = () => {
   const [desde, setDesde] = useState('');
   const [hasta, setHasta] = useState('');
   const [cliente, setCliente] = useState('');
+  const [exportMsg, setExportMsg] = useState('');
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     let data = await reportesService.consultar({ estado: estado || undefined, desde, hasta, cliente });
     if (cliente) data.envios = await reportesService.filtrarPorCliente(data.envios, cliente);
     setReporte(data);
     setLoading(false);
-  };
+  }, [estado, desde, hasta, cliente]);
 
-  useEffect(() => { load(); }, [estado, desde, hasta, cliente]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const getRows = () => (reporte?.envios || []).map(mapEnvioToRow);
 
   const handleExport = (type) => {
     const rows = getRows();
-    if (!rows.length) return alert('No hay datos para exportar');
+    if (!rows.length) {
+      setExportMsg('No hay datos para exportar con los filtros actuales.');
+      return;
+    }
     const ts = new Date().toISOString().slice(0, 10);
+    const formats = { csv: 'CSV', excel: 'Excel', pdf: 'PDF' };
     if (type === 'csv') exportCSV(rows, `reporte-gls-${ts}.csv`);
     else if (type === 'excel') exportExcel(rows, `reporte-gls-${ts}.xlsx`);
     else exportPDF(rows, 'Reporte de Envíos GLS', `reporte-gls-${ts}.pdf`);
+
+    logAudit({
+      accion: 'exportacion_archivo',
+      modulo: 'Reportes',
+      descripcion: `Exportación ${formats[type]} de reporte (${rows.length} registros)`,
+    });
+    setExportMsg(`Exportación ${formats[type]} generada correctamente.`);
   };
 
   return (
     <div className="page">
       <PageHeader title="Reportes" subtitle="Análisis y exportación de datos operativos" />
+      {exportMsg && <Alert type={exportMsg.includes('No hay') ? 'warning' : 'success'} message={exportMsg} onClose={() => setExportMsg('')} />}
       <div className="filters-bar">
         <Select id="estado" value={estado} onChange={(e) => setEstado(e.target.value)} placeholder="Todos los estados" options={['Todos', ...SHIPMENT_STATUSES]} />
         <Input id="desde" label="Desde" type="date" value={desde} onChange={(e) => setDesde(e.target.value)} />
@@ -83,6 +100,7 @@ export const ReportesPage = () => {
                 { key: 'peso', label: 'Peso (kg)' },
               ]}
               data={reporte.envios}
+              emptyMessage="No hay envíos que coincidan con los filtros seleccionados."
             />
           </Card>
         </>

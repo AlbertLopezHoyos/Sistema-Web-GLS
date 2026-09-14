@@ -2,6 +2,7 @@ import { STORAGE_KEYS, AREA_DEFAULT } from '../constants/appConfig';
 import { getStore, setStore } from '../utils/dataStore';
 import { delay } from '../utils/storage';
 import { validateRequired, validateLatLng } from '../utils/validation';
+import { logAudit } from '../utils/auditHelper';
 
 /**
  * La geolocalización implementada corresponde a puntos de control registrados
@@ -47,6 +48,13 @@ export const ubicacionesService = {
     const ubicaciones = getStore(STORAGE_KEYS.UBICACIONES);
     ubicaciones.push(ubicacion);
     setStore(STORAGE_KEYS.UBICACIONES, ubicaciones);
+
+    logAudit({
+      accion: 'ubicacion_registrada',
+      modulo: 'Geolocalización',
+      descripcion: `Ubicación registrada para ${codigo}`,
+    });
+
     return ubicacion;
   },
 };

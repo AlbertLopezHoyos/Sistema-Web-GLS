@@ -7,6 +7,7 @@ import { calcularCotizacion } from '../utils/cotizacionEnvio';
 import { normalizeText } from '../utils/formatters';
 import { validateDocumento, validateTelefono, validateRequired, validatePositiveNumber } from '../utils/validation';
 import { clientesService } from './clientesService';
+import { logAudit } from '../utils/auditHelper';
 
 const nextCodigo = () => {
   const counter = getStore(STORAGE_KEYS.COUNTER);
@@ -49,6 +50,8 @@ const validateEnvio = (data) => {
   validateParty(data.destinatario, 'destinatario');
   return errors;
 };
+
+export const validateEnvioForm = validateEnvio;
 
 export const enviosService = {
   async getEnvios(filters = {}) {
@@ -166,6 +169,12 @@ export const enviosService = {
       registradoPor: registradoPor || 'sistema',
     });
     setStore(STORAGE_KEYS.HISTORIAL, historial);
+
+    logAudit({
+      accion: 'envio_creado',
+      modulo: 'Envíos',
+      descripcion: `Envío ${codigoEnvio} registrado`,
+    });
 
     return envio;
   },

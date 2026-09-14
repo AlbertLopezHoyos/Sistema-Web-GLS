@@ -3,6 +3,7 @@ import { Modal } from '../common/Modal';
 import { Button } from '../common/Button';
 import { Select } from '../common/Select';
 import { Input } from '../common/Input';
+import { Alert } from '../common/Alert';
 import { SHIPMENT_STATUSES } from '../../constants/shipmentStatus';
 import { trazabilidadService } from '../../services/trazabilidadService';
 
@@ -16,16 +17,19 @@ export const UpdateStatusModal = ({ isOpen, onClose, codigoEnvio, estadoActual, 
     receptorDocumento: '',
   });
   const [errors, setErrors] = useState({});
+  const [generalError, setGeneralError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleChange = (field, value) => {
     setForm((p) => ({ ...p, [field]: value }));
     setErrors((p) => ({ ...p, [field]: '' }));
+    setGeneralError('');
   };
 
   const handleSubmit = async () => {
     setLoading(true);
     setErrors({});
+    setGeneralError('');
     try {
       const result = await trazabilidadService.actualizarEstado(codigoEnvio, form, registradoPor);
       onSuccess?.(result);
@@ -33,7 +37,7 @@ export const UpdateStatusModal = ({ isOpen, onClose, codigoEnvio, estadoActual, 
       setForm({ estado: '', observacion: '', evidenciaReferencia: '', evidenciaDetalle: '', receptorNombre: '', receptorDocumento: '' });
     } catch (err) {
       if (err.errors) setErrors(err.errors);
-      else alert(err.message || 'Error al actualizar estado');
+      else setGeneralError(err.message || 'Error al actualizar estado');
     } finally {
       setLoading(false);
     }
@@ -54,6 +58,7 @@ export const UpdateStatusModal = ({ isOpen, onClose, codigoEnvio, estadoActual, 
         </>
       }
     >
+      {generalError && <Alert type="error" message={generalError} onClose={() => setGeneralError('')} />}
       <Select
         id="estado"
         label="Nuevo estado"

@@ -17,7 +17,7 @@ Centralizar la información operativa de envíos en una aplicación web accesibl
 | Frontend React | **Implementado** |
 | Backend API REST | Pendiente |
 | Base de datos MySQL | Pendiente |
-| Datos actuales | Mock / localStorage |
+| Datos actuales | Mock / localStorage / sessionStorage |
 
 ## Arquitectura prevista
 
@@ -118,6 +118,13 @@ npm run build
 ## Base de datos
 
 La base de datos definitiva será **MySQL**. Los scripts y el modelo relacional se desarrollarán en una etapa posterior.
+
+## Sesión mock
+
+- **Recordar sesión activado:** la sesión se guarda en `localStorage` y persiste al cerrar el navegador.
+- **Recordar sesión desactivado:** la sesión se guarda en `sessionStorage` y se elimina al cerrar la pestaña/navegador.
+
+Los datos operativos mock (clientes, envíos, historial, etc.) permanecen en `localStorage`.
 
 ## Seguridad
 

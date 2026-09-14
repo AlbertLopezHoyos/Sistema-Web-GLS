@@ -3,6 +3,7 @@ import { ROLES } from '../constants/roles';
 import { getStore, setStore, generateId } from '../utils/dataStore';
 import { delay } from '../utils/storage';
 import { validateEmail, validatePassword, validateRequired } from '../utils/validation';
+import { logAudit } from '../utils/auditHelper';
 
 const sanitizeUser = (user) => {
   const { password: _password, ...safe } = user;
@@ -51,6 +52,7 @@ export const usuariosService = {
     };
     usuarios.push(user);
     setStore(STORAGE_KEYS.USUARIOS, usuarios);
+    logAudit({ accion: 'registro_usuario', modulo: 'Usuarios', descripcion: `Usuario ${user.email} creado` });
     return sanitizeUser(user);
   },
 
@@ -74,6 +76,7 @@ export const usuariosService = {
       updatedAt: new Date().toISOString(),
     };
     setStore(STORAGE_KEYS.USUARIOS, usuarios);
+    logAudit({ accion: 'usuario_modificado', modulo: 'Usuarios', descripcion: `Usuario ${usuarios[idx].email} actualizado` });
     return sanitizeUser(usuarios[idx]);
   },
 
@@ -85,6 +88,11 @@ export const usuariosService = {
     usuarios[idx].activo = !usuarios[idx].activo;
     usuarios[idx].updatedAt = new Date().toISOString();
     setStore(STORAGE_KEYS.USUARIOS, usuarios);
+    logAudit({
+      accion: 'usuario_modificado',
+      modulo: 'Usuarios',
+      descripcion: `Usuario ${usuarios[idx].email} ${usuarios[idx].activo ? 'activado' : 'desactivado'}`,
+    });
     return sanitizeUser(usuarios[idx]);
   },
 };

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { authService } from '../../services/authService';
+import { authSession } from '../../utils/authSession';
 import { PageHeader } from '../../components/common/PageHeader';
 import { Card } from '../../components/common/Card';
 import { Input } from '../../components/common/Input';
@@ -8,15 +9,13 @@ import { Button } from '../../components/common/Button';
 import { Alert } from '../../components/common/Alert';
 import { ROLE_LABELS } from '../../constants/roles';
 import { formatDateTime } from '../../utils/formatters';
-import { storage } from '../../utils/storage';
-import { STORAGE_KEYS } from '../../constants/appConfig';
 
 export const PerfilPage = () => {
   const { user, refreshUser } = useAuth();
   const [nombres, setNombres] = useState(user?.nombres || '');
   const [saving, setSaving] = useState(false);
   const [alert, setAlert] = useState('');
-  const session = storage.get(STORAGE_KEYS.SESSION);
+  const session = authSession.get();
 
   const handleSave = async () => {
     setSaving(true);
@@ -46,7 +45,8 @@ export const PerfilPage = () => {
         <Card title="Información de sesión">
           <dl>
             <dt>Inicio de sesión</dt><dd>{session?.loginAt ? formatDateTime(session.loginAt) : '—'}</dd>
-            <dt>Recordar sesión</dt><dd>{session?.remember ? 'Sí' : 'No'}</dd>
+            <dt>Recordar sesión</dt><dd>{session?.remember ? 'Sí (localStorage)' : 'No (sessionStorage)'}</dd>
+            <dt>Almacenamiento</dt><dd>{session?.remember ? 'Persistente' : 'Temporal'}</dd>
           </dl>
         </Card>
         <Card title="Editar nombre">

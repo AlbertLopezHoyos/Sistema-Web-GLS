@@ -3,6 +3,7 @@ import { SHIPMENT_STATUSES } from '../constants/shipmentStatus';
 import { getStore, setStore } from '../utils/dataStore';
 import { delay } from '../utils/storage';
 import { validateRequired, validateReceptorDocumento } from '../utils/validation';
+import { logAudit } from '../utils/auditHelper';
 
 export const trazabilidadService = {
   async getHistorialByEnvio(codigo) {
@@ -121,6 +122,12 @@ export const trazabilidadService = {
     const historial = getStore(STORAGE_KEYS.HISTORIAL);
     historial.push(evento);
     setStore(STORAGE_KEYS.HISTORIAL, historial);
+
+    logAudit({
+      accion: 'estado_actualizado',
+      modulo: 'Trazabilidad',
+      descripcion: `Estado de ${codigo} actualizado a ${data.estado}`,
+    });
 
     return { envio: envios[idx], evento };
   },

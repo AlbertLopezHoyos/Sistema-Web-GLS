@@ -1,6 +1,7 @@
 import { STORAGE_KEYS } from '../constants/appConfig';
 import { getStore, setStore, generateId } from '../utils/dataStore';
 import { delay } from '../utils/storage';
+import { logAudit } from '../utils/auditHelper';
 
 export const respaldoService = {
   async getInfo() {
@@ -27,11 +28,13 @@ export const respaldoService = {
       tamano: '2.4 MB (simulado)',
     };
     setStore(STORAGE_KEYS.RESPALDO, respaldo);
+    logAudit({ accion: 'backup_exportado', modulo: 'Respaldo', descripcion: 'Respaldo simulado generado', usuario });
     return entry;
   },
 
-  async restaurarRespaldo() {
+  async restaurarRespaldo(usuario) {
     await delay(800);
+    logAudit({ accion: 'backup_importado', modulo: 'Respaldo', descripcion: 'Restauración simulada', usuario });
     return { success: true, message: 'Operación simulada. No se realizaron cambios en los datos.' };
   },
 };

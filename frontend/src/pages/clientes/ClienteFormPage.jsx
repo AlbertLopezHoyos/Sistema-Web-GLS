@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { clientesService } from '../../services/clientesService';
+import { useAuth } from '../../context/AuthContext';
 import { PageHeader } from '../../components/common/PageHeader';
 import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
 import { Alert } from '../../components/common/Alert';
 import { Loader } from '../../components/common/Loader';
 import { ConfirmModal } from '../../components/common/ConfirmModal';
+import { RoleGuard } from '../../components/layout/RoleGuard';
 import { ROUTES } from '../../constants/routes';
 
 const emptyForm = { nombres: '', documento: '', telefono: '', direccion: '', empresa: '' };
@@ -15,7 +17,9 @@ export const ClienteFormPage = () => {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
   const isEdit = !!id;
-  const editMode = searchParams.get('edit') === '1' || !id;
+  const wantsEdit = searchParams.get('edit') === '1';
+  const editMode = wantsEdit || !isEdit;
+  const { canMutate } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState(emptyForm);
   const [errors, setErrors] = useState({});
@@ -23,7 +27,7 @@ export const ClienteFormPage = () => {
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState('');
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [readOnly, setReadOnly] = useState(isEdit && !editMode);
+  const [readOnly, setReadOnly] = useState(isEdit && !wantsEdit);
 
   useEffect(() => {
     if (isEdit) {
@@ -33,6 +37,10 @@ export const ClienteFormPage = () => {
       });
     }
   }, [id, isEdit]);
+
+  if (!canMutate && editMode) {
+    return <Navigate to={isEdit ? `/clientes/${id}` : ROUTES.CLIENTES} replace />;
+  }
 
   const handleChange = (field, value) => {
     setForm((p) => ({ ...p, [field]: value }));
@@ -62,7 +70,9 @@ export const ClienteFormPage = () => {
       <PageHeader
         title={isEdit ? (readOnly ? 'Detalle de cliente' : 'Editar cliente') : 'Nuevo cliente'}
         actions={readOnly && (
-          <Button onClick={() => setReadOnly(false)}>Editar</Button>
+          <RoleGuard mutate>
+            <Button onClick={() => setReadOnly(false)}>Editar</Button>
+          </RoleGuard>
         )}
       />
       {success && <Alert type="success" message={success} />}

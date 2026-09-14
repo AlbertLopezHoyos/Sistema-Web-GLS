@@ -75,6 +75,12 @@ src/
 | `/respaldo` | Respaldo simulado |
 | `/perfil` | Perfil de usuario |
 
+## Sesión
+
+- `Recordar sesión` → `localStorage`
+- Sin recordar → `sessionStorage`
+- Datos mock → `localStorage` (centralizado en servicios)
+
 ## Arquitectura de datos
 
 ```

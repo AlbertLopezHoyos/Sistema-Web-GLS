@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { clientesService } from '../../services/clientesService';
-import { enviosService } from '../../services/enviosService';
+import { enviosService, validateEnvioForm } from '../../services/enviosService';
 import { useAuth } from '../../context/AuthContext';
 import { PageHeader } from '../../components/common/PageHeader';
 import { Input } from '../../components/common/Input';
@@ -21,6 +21,7 @@ export const EnvioFormPage = () => {
   const [clientes, setClientes] = useState([]);
   const [activeTab, setActiveTab] = useState(0);
   const [errors, setErrors] = useState({});
+  const [tabError, setTabError] = useState('');
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState('');
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -51,8 +52,63 @@ export const EnvioFormPage = () => {
     handleChange('clienteDocumento', doc);
     if (doc) {
       const c = await clientesService.getClienteByDocumento(doc);
-      if (c) handleParty('remitente', 'nombres', c.nombres);
+      if (c) {
+        setForm((p) => ({
+          ...p,
+          remitente: { nombres: c.nombres, documento: c.documento, telefono: c.telefono, direccion: c.direccion },
+        }));
+      }
     }
+  };
+
+  const buildPayload = () => ({
+    ...form,
+    peso: Number(form.peso),
+    dimensiones: {
+      ...form.dimensiones,
+      largo: Number(form.dimensiones.largo),
+      ancho: Number(form.dimensiones.ancho),
+      alto: Number(form.dimensiones.alto),
+    },
+  });
+
+  const validateCurrentTabs = (upToTab) => {
+    const payload = buildPayload();
+    const allErrors = validateEnvioForm(payload);
+    const fieldsForTabs = [];
+    for (let i = 0; i <= upToTab; i++) {
+      if (i === 0) fieldsForTabs.push(...Object.keys(allErrors).filter((k) => k.startsWith('remitente') || k.startsWith('destinatario')));
+      if (i === 1) fieldsForTabs.push(...Object.keys(allErrors).filter((k) => !k.startsWith('remitente') && !k.startsWith('destinatario')));
+    }
+    const tabErrors = {};
+    fieldsForTabs.forEach((k) => { if (allErrors[k]) tabErrors[k] = allErrors[k]; });
+    return tabErrors;
+  };
+
+  const handleNextTab = () => {
+    setTabError('');
+    const tabErrors = validateCurrentTabs(activeTab);
+    if (Object.keys(tabErrors).length) {
+      setErrors(tabErrors);
+      setTabError('Complete los campos obligatorios antes de continuar.');
+      return;
+    }
+    setErrors({});
+    setActiveTab((t) => t + 1);
+  };
+
+  const handleSubmitRequest = (e) => {
+    e.preventDefault();
+    setTabError('');
+    const allErrors = validateEnvioForm(buildPayload());
+    if (Object.keys(allErrors).length) {
+      setErrors(allErrors);
+      setTabError('Revise los campos obligatorios en todas las secciones.');
+      if (Object.keys(allErrors).some((k) => k.startsWith('remitente') || k.startsWith('destinatario'))) setActiveTab(0);
+      else setActiveTab(1);
+      return;
+    }
+    setConfirmOpen(true);
   };
 
   const calcPreview = () => {
@@ -72,19 +128,9 @@ export const EnvioFormPage = () => {
     setSaving(true);
     setErrors({});
     try {
-      const payload = {
-        ...form,
-        peso: Number(form.peso),
-        dimensiones: {
-          ...form.dimensiones,
-          largo: Number(form.dimensiones.largo),
-          ancho: Number(form.dimensiones.ancho),
-          alto: Number(form.dimensiones.alto),
-        },
-      };
-      const envio = await enviosService.createEnvio(payload, user?.email);
+      const envio = await enviosService.createEnvio(buildPayload(), user?.email);
       setSuccess(`Envío ${envio.codigoEnvio} registrado correctamente`);
-      setTimeout(() => navigate(`${ROUTES.ENVIOS}/${envio.codigoEnvio}`), 2000);
+      setTimeout(() => navigate(`${ROUTES.ENVIOS}/${envio.codigoEnvio}`), 1500);
     } catch (err) {
       if (err.errors) setErrors(err.errors);
     } finally {
@@ -97,12 +143,13 @@ export const EnvioFormPage = () => {
     <div className="page">
       <PageHeader title="Registrar envío" subtitle="Complete los datos del nuevo envío" />
       {success && <Alert type="success" message={success} />}
+      {tabError && <Alert type="warning" message={tabError} onClose={() => setTabError('')} />}
       <div className="tabs">
         {tabs.map((t, i) => (
           <button key={t} type="button" className={`tab ${activeTab === i ? 'active' : ''}`} onClick={() => setActiveTab(i)}>{t}</button>
         ))}
       </div>
-      <form className="form-sections" onSubmit={(e) => { e.preventDefault(); setConfirmOpen(true); }}>
+      <form className="form-sections" onSubmit={handleSubmitRequest}>
         {activeTab === 0 && (
           <section className="form-section">
             <Select id="cliente" label="Seleccionar cliente registrado" value={form.clienteDocumento} onChange={(e) => handleClienteSelect(e.target.value)} placeholder="— Sin cliente —" options={clientes.map((c) => ({ value: c.documento, label: `${c.documento} — ${c.nombres}` }))} />
@@ -129,10 +176,10 @@ export const EnvioFormPage = () => {
               <Input id="destino" label="Destino" required value={form.destino} onChange={(e) => handleChange('destino', e.target.value)} error={errors.destino} />
               <Input id="tipoCarga" label="Tipo de carga" required value={form.tipoCarga} onChange={(e) => handleChange('tipoCarga', e.target.value)} error={errors.tipoCarga} />
               <Input id="descripcion" label="Descripción" required value={form.descripcion} onChange={(e) => handleChange('descripcion', e.target.value)} error={errors.descripcion} />
-              <Input id="peso" label="Peso (kg)" type="number" step="0.01" required value={form.peso} onChange={(e) => handleChange('peso', e.target.value)} error={errors.peso} />
-              <Input id="dim_largo" label="Largo" type="number" step="0.01" required value={form.dimensiones.largo} onChange={(e) => handleDim('largo', e.target.value)} error={errors.largo} />
-              <Input id="dim_ancho" label="Ancho" type="number" step="0.01" required value={form.dimensiones.ancho} onChange={(e) => handleDim('ancho', e.target.value)} error={errors.ancho} />
-              <Input id="dim_alto" label="Alto" type="number" step="0.01" required value={form.dimensiones.alto} onChange={(e) => handleDim('alto', e.target.value)} error={errors.alto} />
+              <Input id="peso" label="Peso (kg)" type="number" step="0.01" min="0.01" required value={form.peso} onChange={(e) => handleChange('peso', e.target.value)} error={errors.peso} />
+              <Input id="dim_largo" label="Largo" type="number" step="0.01" min="0.01" required value={form.dimensiones.largo} onChange={(e) => handleDim('largo', e.target.value)} error={errors.largo} />
+              <Input id="dim_ancho" label="Ancho" type="number" step="0.01" min="0.01" required value={form.dimensiones.ancho} onChange={(e) => handleDim('ancho', e.target.value)} error={errors.ancho} />
+              <Input id="dim_alto" label="Alto" type="number" step="0.01" min="0.01" required value={form.dimensiones.alto} onChange={(e) => handleDim('alto', e.target.value)} error={errors.alto} />
               <Select id="dim_unidad" label="Unidad" required value={form.dimensiones.unidadMedida} onChange={(e) => handleDim('unidadMedida', e.target.value)} options={DIMENSION_UNITS} />
             </div>
           </section>
@@ -169,7 +216,7 @@ export const EnvioFormPage = () => {
           <Button type="button" variant="ghost" onClick={() => navigate(ROUTES.ENVIOS)}>Cancelar</Button>
           {activeTab > 0 && <Button type="button" variant="secondary" onClick={() => setActiveTab((t) => t - 1)}>Anterior</Button>}
           {activeTab < tabs.length - 1 ? (
-            <Button type="button" onClick={() => setActiveTab((t) => t + 1)}>Siguiente</Button>
+            <Button type="button" onClick={handleNextTab}>Siguiente</Button>
           ) : (
             <Button type="submit" loading={saving}>Guardar envío</Button>
           )}

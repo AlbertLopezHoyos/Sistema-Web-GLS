@@ -11,7 +11,7 @@ export const Sidebar = ({ mobileOpen, onMobileClose }) => {
   const { user } = useAuth();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(() => storage.get(STORAGE_KEYS.SIDEBAR, false));
-  const [expanded, setExpanded] = useState({ envios: true });
+  const [expanded, setExpanded] = useState({ envios: true, admin: true });
 
   useEffect(() => {
     storage.set(STORAGE_KEYS.SIDEBAR, collapsed);

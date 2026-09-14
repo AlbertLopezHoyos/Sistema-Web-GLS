@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -20,8 +19,6 @@ export const EnvioMap = ({ ubicaciones = [], height = 400 }) => {
   const center = points.length
     ? points[points.length - 1]
     : [DEFAULT_MAP_CENTER.lat, DEFAULT_MAP_CENTER.lng];
-
-  useEffect(() => {}, [ubicaciones]);
 
   return (
     <div className="map-container" style={{ height }}>

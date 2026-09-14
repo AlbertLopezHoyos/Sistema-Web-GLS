@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff, LogIn } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { APP_NAME, APP_TITLE, COMPANY_NAME } from '../../constants/appConfig';
@@ -14,13 +14,15 @@ export const LoginPage = () => {
   const [remember, setRemember] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
+  if (authLoading) return null;
+
   if (isAuthenticated) {
-    navigate(ROUTES.DASHBOARD, { replace: true });
-    return null;
+    const from = location.state?.from?.pathname || ROUTES.DASHBOARD;
+    return <Navigate to={from} replace />;
   }
 
   const handleSubmit = async (e) => {

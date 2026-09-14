@@ -13,7 +13,7 @@ export const validatePassword = (password, min = 6) => {
 
 export const validateDocumento = (doc) => {
   if (!doc?.trim()) return 'El documento es obligatorio';
-  if (!/^[0-9A-Za-z\-]{6,20}$/.test(doc.trim())) {
+  if (!/^[0-9A-Za-z-]{6,20}$/.test(doc.trim())) {
     return 'Documento inválido (6-20 caracteres alfanuméricos)';
   }
   return '';
