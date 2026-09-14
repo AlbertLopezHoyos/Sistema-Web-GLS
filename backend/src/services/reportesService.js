@@ -55,14 +55,4 @@ export const reportesService = {
       },
     };
   },
-
-  filtrarPorCliente(envios, clienteQuery) {
-    if (!clienteQuery?.trim()) return envios;
-    const q = clienteQuery.toLowerCase();
-    return envios.filter(
-      (e) =>
-        (e.clienteAsociado?.nombres || '').toLowerCase().includes(q) ||
-        (e.clienteAsociado?.documento || '').toLowerCase().includes(q)
-    );
-  },
 };

@@ -1,8 +1,8 @@
-import { query } from '../config/db.js';
 import { mapCliente } from '../utils/mappers.js';
 import { validateDocumento, validateTelefono, validateRequired } from '../utils/validation.js';
 import { ValidationError, NotFoundError, ConflictError } from '../utils/errors.js';
 import { auditService } from './auditService.js';
+import { clientesRepository } from '../repositories/clientesRepository.js';
 
 const validateCliente = (data) => {
   const errors = {};
@@ -19,29 +19,23 @@ const validateCliente = (data) => {
 
 export const clientesService = {
   async getAll() {
-    const [rows] = await query('SELECT * FROM clientes ORDER BY nombres');
+    const rows = await clientesRepository.findAll();
     return rows.map(mapCliente);
   },
 
   async getById(id) {
-    const [rows] = await query('SELECT * FROM clientes WHERE id = ? LIMIT 1', [id]);
-    return mapCliente(rows[0]);
+    const row = await clientesRepository.findById(id);
+    return mapCliente(row);
   },
 
   async getByDocumento(documento) {
-    const [rows] = await query('SELECT * FROM clientes WHERE documento = ? LIMIT 1', [documento.trim()]);
-    return mapCliente(rows[0]);
+    const row = await clientesRepository.findByDocumento(documento);
+    return mapCliente(row);
   },
 
   async search(queryStr) {
     if (!queryStr?.trim()) return this.getAll();
-    const q = `%${queryStr.trim().toLowerCase()}%`;
-    const [rows] = await query(
-      `SELECT * FROM clientes
-       WHERE LOWER(nombres) LIKE ? OR LOWER(documento) LIKE ? OR LOWER(empresa) LIKE ?
-       ORDER BY nombres`,
-      [q, q, q]
-    );
+    const rows = await clientesRepository.search(queryStr);
     return rows.map(mapCliente);
   },
 
@@ -56,11 +50,10 @@ export const clientesService = {
     const now = new Date();
     const id = `cli_${doc.replace(/[^0-9A-Za-z]/g, '_')}`;
     try {
-      await query(
-        `INSERT INTO clientes (id, nombres, documento, telefono, direccion, empresa, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [id, data.nombres.trim(), doc, data.telefono.trim(), data.direccion.trim(), (data.empresa || '').trim(), now, now]
-      );
+      await clientesRepository.insert([
+        id, data.nombres.trim(), doc, data.telefono.trim(), data.direccion.trim(),
+        (data.empresa || '').trim(), now, now,
+      ]);
     } catch (err) {
       if (err.code === 'ER_DUP_ENTRY') throw new ConflictError('Cliente duplicado');
       throw err;
@@ -86,10 +79,9 @@ export const clientesService = {
     if (!existing) throw new NotFoundError('Cliente no encontrado');
 
     const now = new Date();
-    await query(
-      `UPDATE clientes SET nombres = ?, telefono = ?, direccion = ?, empresa = ?, updated_at = ? WHERE id = ?`,
-      [data.nombres.trim(), data.telefono.trim(), data.direccion.trim(), (data.empresa || '').trim(), now, id]
-    );
+    await clientesRepository.update(id, [
+      data.nombres.trim(), data.telefono.trim(), data.direccion.trim(), (data.empresa || '').trim(), now, id,
+    ]);
 
     await auditService.registrar({
       accion: 'cliente_modificado',

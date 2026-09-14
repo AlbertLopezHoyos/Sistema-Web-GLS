@@ -3,20 +3,25 @@ import { mapAuditoria } from '../utils/mappers.js';
 
 const generateId = () => `log_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
 
+const execute = (conn, sql, params) => (conn ? conn.execute(sql, params) : query(sql, params));
+
 export const auditService = {
-  async registrar({
-    accion,
-    modulo,
-    descripcion,
-    usuarioId = null,
-    usuarioEmail = '',
-    rol = '',
-    ip = null,
-    userAgent = null,
-  }) {
+  async registrar(data, conn = null) {
+    const {
+      accion,
+      modulo,
+      descripcion,
+      usuarioId = null,
+      usuarioEmail = '',
+      rol = '',
+      ip = null,
+      userAgent = null,
+    } = data;
+
     const id = generateId();
     const fecha = new Date();
-    await query(
+    await execute(
+      conn,
       `INSERT INTO auditoria (id, usuario_id, usuario_email, rol, accion, modulo, descripcion, ip, user_agent, fecha)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [id, usuarioId, usuarioEmail, rol, accion, modulo, descripcion, ip, userAgent, fecha]

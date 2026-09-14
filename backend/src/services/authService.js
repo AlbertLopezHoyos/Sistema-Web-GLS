@@ -1,21 +1,13 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import env from '../config/env.js';
-import { query } from '../config/db.js';
 import { mapUsuario } from '../utils/mappers.js';
 import { validateEmail, validatePassword, validateRequired } from '../utils/validation.js';
 import { ValidationError, UnauthorizedError, NotFoundError } from '../utils/errors.js';
 import { auditService } from './auditService.js';
+import { usuariosRepository } from '../repositories/usuariosRepository.js';
 
 const ROLE_LABELS = { admin: 'Administrador', operaciones: 'Operaciones', consulta: 'Consulta' };
-
-const findByEmail = async (email) => {
-  const [rows] = await query(
-    `SELECT u.*, r.codigo AS rol_codigo FROM usuarios u JOIN roles r ON r.id = u.rol_id WHERE u.email = ? LIMIT 1`,
-    [email.trim().toLowerCase()]
-  );
-  return rows[0] || null;
-};
 
 export const authService = {
   async login(email, password, remember, meta = {}) {
@@ -26,7 +18,7 @@ export const authService = {
     if (passErr) errors.password = passErr;
     if (Object.keys(errors).length) throw new ValidationError(errors);
 
-    const row = await findByEmail(email);
+    const row = await usuariosRepository.findByEmail(email);
     const emailNorm = email.trim().toLowerCase();
 
     if (!row || !(await bcrypt.compare(password, row.password_hash))) {
@@ -94,11 +86,8 @@ export const authService = {
   },
 
   async getMe(userId, authMeta) {
-    const [rows] = await query(
-      `SELECT u.*, r.codigo AS rol_codigo FROM usuarios u JOIN roles r ON r.id = u.rol_id WHERE u.id = ? LIMIT 1`,
-      [userId]
-    );
-    const user = mapUsuario(rows[0]);
+    const row = await usuariosRepository.findById(userId);
+    const user = mapUsuario(row);
     if (!user || !user.activo) throw new UnauthorizedError();
     return {
       user,
@@ -111,16 +100,14 @@ export const authService = {
     const nombres = validateRequired(data.nombres, 'Nombres');
     if (nombres) throw new ValidationError({ nombres });
 
-    const [result] = await query(
-      'UPDATE usuarios SET nombres = ?, updated_at = ? WHERE id = ?',
-      [data.nombres.trim(), new Date(), userId]
-    );
-    if (result.affectedRows === 0) throw new NotFoundError('Usuario no encontrado');
+    const existing = await usuariosRepository.findById(userId);
+    if (!existing) throw new NotFoundError('Usuario no encontrado');
 
-    const [rows] = await query(
-      `SELECT u.*, r.codigo AS rol_codigo FROM usuarios u JOIN roles r ON r.id = u.rol_id WHERE u.id = ?`,
-      [userId]
-    );
-    return mapUsuario(rows[0]);
+    await usuariosRepository.update(userId, [
+      data.nombres.trim(), existing.rol_id, existing.activo, new Date(), userId,
+    ]);
+
+    const row = await usuariosRepository.findById(userId);
+    return mapUsuario(row);
   },
 };

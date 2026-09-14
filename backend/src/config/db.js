@@ -28,4 +28,6 @@ export const ping = async () => {
   }
 };
 
+export const closePool = () => pool.end();
+
 export default pool;

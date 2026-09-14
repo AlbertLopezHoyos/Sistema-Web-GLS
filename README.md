@@ -5,8 +5,10 @@ Sistema web de información para el seguimiento y trazabilidad de envíos en el 
 ## Arquitectura
 
 ```
-Usuario → Navegador → React → API REST → Node.js/Express → MySQL
+Usuario → Navegador → React → API REST → Controllers → Services → Repositories → MySQL
 ```
+
+Backend interno: `Routes → Controllers → Services → Repositories → MySQL`
 
 ## Estado del proyecto
 

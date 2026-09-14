@@ -1,32 +1,21 @@
 import bcrypt from 'bcryptjs';
 import env from '../config/env.js';
-import { query } from '../config/db.js';
 import { mapUsuario } from '../utils/mappers.js';
 import { validateEmail, validatePassword, validateRequired } from '../utils/validation.js';
 import { ValidationError, NotFoundError, ConflictError } from '../utils/errors.js';
 import { auditService } from './auditService.js';
-
-const ROLES = ['admin', 'operaciones', 'consulta'];
-
-const getRolId = async (codigo) => {
-  const [rows] = await query('SELECT id FROM roles WHERE codigo = ? LIMIT 1', [codigo]);
-  return rows[0]?.id;
-};
+import { usuariosRepository } from '../repositories/usuariosRepository.js';
+import { USER_ROLES } from '../utils/constants.js';
 
 export const usuariosService = {
   async getAll() {
-    const [rows] = await query(
-      `SELECT u.*, r.codigo AS rol_codigo FROM usuarios u JOIN roles r ON r.id = u.rol_id ORDER BY u.nombres`
-    );
+    const rows = await usuariosRepository.findAll();
     return rows.map(mapUsuario);
   },
 
   async getById(id) {
-    const [rows] = await query(
-      `SELECT u.*, r.codigo AS rol_codigo FROM usuarios u JOIN roles r ON r.id = u.rol_id WHERE u.id = ? LIMIT 1`,
-      [id]
-    );
-    return mapUsuario(rows[0]);
+    const row = await usuariosRepository.findById(id);
+    return mapUsuario(row);
   },
 
   async create(data, actor) {
@@ -37,10 +26,10 @@ export const usuariosService = {
     if (email) errors.email = email;
     const pass = validatePassword(data.password);
     if (pass) errors.password = pass;
-    if (!ROLES.includes(data.rol)) errors.rol = 'Rol inválido';
+    if (!USER_ROLES.includes(data.rol)) errors.rol = 'Rol inválido';
     if (Object.keys(errors).length) throw new ValidationError(errors);
 
-    const rolId = await getRolId(data.rol);
+    const rolId = await usuariosRepository.getRolId(data.rol);
     if (!rolId) throw new ValidationError({ rol: 'Rol inválido' });
 
     const id = `usr_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
@@ -48,11 +37,9 @@ export const usuariosService = {
     const passwordHash = await bcrypt.hash(data.password, env.bcryptRounds);
 
     try {
-      await query(
-        `INSERT INTO usuarios (id, email, nombres, rol_id, activo, password_hash, created_at, updated_at)
-         VALUES (?, ?, ?, ?, 1, ?, ?, ?)`,
-        [id, data.email.trim().toLowerCase(), data.nombres.trim(), rolId, passwordHash, now, now]
-      );
+      await usuariosRepository.insert([
+        id, data.email.trim().toLowerCase(), data.nombres.trim(), rolId, 1, passwordHash, now, now,
+      ]);
     } catch (err) {
       if (err.code === 'ER_DUP_ENTRY') throw new ConflictError('El correo ya está registrado');
       throw err;
@@ -74,18 +61,20 @@ export const usuariosService = {
     const errors = {};
     const nombres = validateRequired(data.nombres, 'Nombres');
     if (nombres) errors.nombres = nombres;
-    if (!ROLES.includes(data.rol)) errors.rol = 'Rol inválido';
+    if (!USER_ROLES.includes(data.rol)) errors.rol = 'Rol inválido';
     if (Object.keys(errors).length) throw new ValidationError(errors);
 
     const existing = await this.getById(id);
     if (!existing) throw new NotFoundError('Usuario no encontrado');
 
-    const rolId = await getRolId(data.rol);
+    const nuevoActivo = data.activo !== undefined ? Boolean(data.activo) : existing.activo;
+    await this.assertCanChangeActivo(existing, actor, nuevoActivo);
+
+    const rolId = await usuariosRepository.getRolId(data.rol);
     const now = new Date();
-    await query(
-      `UPDATE usuarios SET nombres = ?, rol_id = ?, activo = ?, updated_at = ? WHERE id = ?`,
-      [data.nombres.trim(), rolId, data.activo !== undefined ? (data.activo ? 1 : 0) : (existing.activo ? 1 : 0), now, id]
-    );
+    await usuariosRepository.update(id, [
+      data.nombres.trim(), rolId, nuevoActivo ? 1 : 0, now, id,
+    ]);
 
     await auditService.registrar({
       accion: 'usuario_modificado',
@@ -103,9 +92,11 @@ export const usuariosService = {
     const existing = await this.getById(id);
     if (!existing) throw new NotFoundError('Usuario no encontrado');
 
-    const now = new Date();
     const nuevoActivo = !existing.activo;
-    await query('UPDATE usuarios SET activo = ?, updated_at = ? WHERE id = ?', [nuevoActivo ? 1 : 0, now, id]);
+    await this.assertCanChangeActivo(existing, actor, nuevoActivo);
+
+    const now = new Date();
+    await usuariosRepository.setActivo(id, nuevoActivo, now);
 
     await auditService.registrar({
       accion: 'usuario_modificado',
@@ -117,5 +108,20 @@ export const usuariosService = {
     });
 
     return this.getById(id);
+  },
+
+  async assertCanChangeActivo(targetUser, actor, nuevoActivo) {
+    if (nuevoActivo) return;
+
+    if (actor?.id === targetUser.id) {
+      throw new ValidationError({}, 'No puede desactivar su propia cuenta');
+    }
+
+    if (targetUser.rol === 'admin') {
+      const otrosAdmins = await usuariosRepository.countActiveAdmins(targetUser.id);
+      if (otrosAdmins === 0) {
+        throw new ConflictError('No se puede desactivar al último administrador activo');
+      }
+    }
   },
 };

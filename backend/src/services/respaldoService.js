@@ -1,13 +1,10 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { execFile } from 'child_process';
-import { promisify } from 'util';
 import env from '../config/env.js';
-import { query } from '../config/db.js';
 import { NotFoundError, AppError } from '../utils/errors.js';
 import { auditService } from './auditService.js';
-
-const execFileAsync = promisify(execFile);
+import { respaldosRepository } from '../repositories/respaldosRepository.js';
+import { runMysqldump, runMysqlRestore } from '../utils/mysqlCli.js';
 
 const ensureBackupDir = async () => {
   await fs.mkdir(env.backup.dir, { recursive: true });
@@ -21,11 +18,7 @@ const formatFileName = () => {
 
 export const respaldoService = {
   async getInfo() {
-    const [rows] = await query(
-      `SELECT r.*, u.email AS usuario_email FROM respaldos r
-       LEFT JOIN usuarios u ON u.id = r.usuario_id
-       ORDER BY r.fecha DESC`
-    );
+    const rows = await respaldosRepository.findAll();
     const historial = rows.map((r) => ({
       id: r.id,
       fecha: r.fecha?.toISOString?.() || r.fecha,
@@ -50,38 +43,14 @@ export const respaldoService = {
     const filePath = path.join(env.backup.dir, fileName);
     const id = `bk_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
 
-    let stdout;
-    try {
-      const result = await execFileAsync(env.backup.mysqldumpPath, [
-        '-h', env.db.host,
-        '-P', String(env.db.port),
-        '-u', env.db.user,
-        `-p${env.db.password}`,
-        '--single-transaction',
-        '--routines',
-        '--triggers',
-        env.db.name,
-      ], { maxBuffer: 100 * 1024 * 1024 });
-      stdout = result.stdout;
-    } catch (err) {
-      if (err.code === 'ENOENT') {
-        throw new AppError(
-          `MySQL CLI no disponible (${env.backup.mysqldumpPath}). Instale MySQL Client y configure MYSQLDUMP_PATH.`,
-          503
-        );
-      }
-      throw new AppError(`Error al ejecutar mysqldump: ${err.message}`, 500);
-    }
-
+    const stdout = await runMysqldump();
     await fs.writeFile(filePath, stdout, 'utf8');
     const stat = await fs.stat(filePath);
     const now = new Date();
 
-    await query(
-      `INSERT INTO respaldos (id, archivo, fecha, estado, tamano_bytes, tipo, usuario_id)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [id, fileName, now, 'Completado', stat.size, 'Exportación MySQL', actor?.id || null]
-    );
+    await respaldosRepository.insert([
+      id, fileName, now, 'Completado', stat.size, 'Exportación MySQL', actor?.id || null,
+    ]);
 
     await auditService.registrar({
       accion: 'backup_exportado',
@@ -102,10 +71,10 @@ export const respaldoService = {
   },
 
   async restaurar(id, actor) {
-    const [rows] = await query('SELECT * FROM respaldos WHERE id = ? LIMIT 1', [id]);
-    if (!rows[0]) throw new NotFoundError('Respaldo no encontrado');
+    const backup = await respaldosRepository.findById(id);
+    if (!backup) throw new NotFoundError('Respaldo no encontrado');
 
-    const filePath = path.resolve(env.backup.dir, path.basename(rows[0].archivo));
+    const filePath = path.resolve(env.backup.dir, path.basename(backup.archivo));
     if (!filePath.startsWith(path.resolve(env.backup.dir))) {
       throw new AppError('Ruta de respaldo inválida', 400);
     }
@@ -117,29 +86,12 @@ export const respaldoService = {
     }
 
     const sqlContent = await fs.readFile(filePath, 'utf8');
-
-    try {
-      await execFileAsync(env.backup.mysqlPath, [
-        '-h', env.db.host,
-        '-P', String(env.db.port),
-        '-u', env.db.user,
-        `-p${env.db.password}`,
-        env.db.name,
-      ], { input: sqlContent, maxBuffer: 100 * 1024 * 1024 });
-    } catch (err) {
-      if (err.code === 'ENOENT') {
-        throw new AppError(
-          `MySQL CLI no disponible (${env.backup.mysqlPath}). Instale MySQL Client y configure MYSQL_PATH.`,
-          503
-        );
-      }
-      throw new AppError(`Error al restaurar respaldo: ${err.message}`, 500);
-    }
+    await runMysqlRestore(sqlContent);
 
     await auditService.registrar({
       accion: 'backup_importado',
       modulo: 'Respaldo',
-      descripcion: `Restauración del respaldo ${rows[0].archivo}`,
+      descripcion: `Restauración del respaldo ${backup.archivo}`,
       usuarioId: actor?.id,
       usuarioEmail: actor?.email || '',
       rol: actor?.rol || '',

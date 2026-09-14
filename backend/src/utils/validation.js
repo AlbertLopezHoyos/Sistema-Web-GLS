@@ -1,3 +1,5 @@
+import { CURRENCIES, DIMENSION_UNITS } from './constants.js';
+
 export const validateEmail = (email) => {
   if (!email?.trim()) return 'El correo es obligatorio';
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return 'Correo inválido';
@@ -29,8 +31,85 @@ export const validateRequired = (value, label) => {
 
 export const validatePositiveNumber = (value, label) => {
   const n = Number(value);
-  if (Number.isNaN(n) || n <= 0) return `${label} debe ser un número mayor a 0`;
+  if (!Number.isFinite(n) || n <= 0) return `${label} debe ser un número mayor a 0`;
   return null;
+};
+
+export const validateNonNegativeNumber = (value, label) => {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n < 0) return `${label} debe ser un número mayor o igual a 0`;
+  return null;
+};
+
+export const validateDimensiones = (dimensiones) => {
+  const errors = {};
+  if (!dimensiones || typeof dimensiones !== 'object') {
+    errors.dimensiones = 'Las dimensiones son obligatorias';
+    return errors;
+  }
+  ['largo', 'ancho', 'alto'].forEach((d) => {
+    const err = validatePositiveNumber(dimensiones[d], d);
+    if (err) errors[d] = err;
+  });
+  const unidad = validateUnidadMedida(dimensiones.unidadMedida);
+  if (unidad) errors.unidadMedida = unidad;
+  return errors;
+};
+
+export const validateUnidadMedida = (unidad) => {
+  if (!unidad?.trim()) return 'La unidad de medida es obligatoria';
+  if (!DIMENSION_UNITS.includes(unidad.trim())) {
+    return `Unidad de medida inválida. Permitidas: ${DIMENSION_UNITS.join(', ')}`;
+  }
+  return null;
+};
+
+export const validateParty = (party, prefix) => {
+  const errors = {};
+  if (!party || typeof party !== 'object') {
+    errors[`${prefix}`] = prefix === 'remitente'
+      ? 'Los datos del remitente son obligatorios'
+      : 'Los datos del destinatario son obligatorios';
+    return errors;
+  }
+  const n = validateRequired(party.nombres, `${prefix} nombres`);
+  if (n) errors[`${prefix}_nombres`] = n;
+  const doc = validateDocumento(party.documento);
+  if (doc) errors[`${prefix}_documento`] = doc;
+  const tel = validateTelefono(party.telefono);
+  if (tel) errors[`${prefix}_telefono`] = tel;
+  const dir = validateRequired(party.direccion, `${prefix} dirección`);
+  if (dir) errors[`${prefix}_direccion`] = dir;
+  return errors;
+};
+
+export const validateCotizacionInput = (cotizacion) => {
+  const errors = {};
+  if (!cotizacion) return errors;
+
+  const dist = validateNonNegativeNumber(cotizacion.distanciaKm ?? 0, 'Distancia');
+  if (dist) errors.distanciaKm = dist;
+
+  const tKg = validatePositiveNumber(cotizacion.tarifaPorKg, 'Tarifa por kg');
+  if (tKg) errors.tarifaPorKg = tKg;
+
+  const tM3 = validateNonNegativeNumber(cotizacion.tarifaPorM3 ?? 0, 'Tarifa por m³');
+  if (tM3) errors.tarifaPorM3 = tM3;
+
+  const tKm = validateNonNegativeNumber(cotizacion.tarifaPorKm ?? 0, 'Tarifa por km');
+  if (tKm) errors.tarifaPorKm = tKm;
+
+  const seg = Number(cotizacion.seguroPorcentaje ?? 0);
+  if (!Number.isFinite(seg) || seg < 0 || seg > 100) {
+    errors.seguroPorcentaje = 'El seguro debe estar entre 0 y 100';
+  }
+
+  const moneda = cotizacion.moneda || 'PEN';
+  if (!CURRENCIES.includes(moneda)) {
+    errors.moneda = `Moneda inválida. Permitidas: ${CURRENCIES.join(', ')}`;
+  }
+
+  return errors;
 };
 
 export const validateReceptorDocumento = (doc) => {
@@ -42,7 +121,7 @@ export const validateReceptorDocumento = (doc) => {
 export const validateLatLng = (lat, lng) => {
   const la = Number(lat);
   const lo = Number(lng);
-  if (Number.isNaN(la) || la < -90 || la > 90) return 'Latitud inválida';
-  if (Number.isNaN(lo) || lo < -180 || lo > 180) return 'Longitud inválida';
+  if (!Number.isFinite(la) || la < -90 || la > 90) return 'Latitud inválida';
+  if (!Number.isFinite(lo) || lo < -180 || lo > 180) return 'Longitud inválida';
   return null;
 };

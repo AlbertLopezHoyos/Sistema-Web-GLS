@@ -37,13 +37,15 @@ npm run db:migrate
 npm run db:seed
 ```
 
-Solo desarrollo:
+Solo `development` o `test` (bloqueado en producción):
 
 ```bash
 npm run db:reset
 npm run db:migrate
 npm run db:seed
 ```
+
+Los datos demo se cargan desde `backend/src/seeds/` (independiente del frontend).
 
 ## Diagrama
 

@@ -45,6 +45,24 @@ export const mapCotizacion = (row) => {
   };
 };
 
+export const cotizacionFromJoinRow = (row) => {
+  if (!row?.cot_moneda) return null;
+  return mapCotizacion({
+    moneda: row.cot_moneda,
+    volumen_m3: row.cot_volumen_m3,
+    peso_volumetrico_kg: row.cot_peso_volumetrico_kg,
+    peso_cobrado_kg: row.cot_peso_cobrado_kg,
+    costo_por_peso: row.cot_costo_por_peso,
+    costo_por_volumen: row.cot_costo_por_volumen,
+    costo_por_distancia: row.cot_costo_por_distancia,
+    subtotal: row.cot_subtotal,
+    seguro_porcentaje: row.cot_seguro_porcentaje,
+    seguro_monto: row.cot_seguro_monto,
+    total_estimado: row.cot_total_estimado,
+    nota: row.cot_nota,
+  });
+};
+
 export const mapEnvio = (row, cotizacionRow = null) => {
   if (!row) return null;
   const envio = {

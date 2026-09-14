@@ -4,8 +4,10 @@ import { fileURLToPath } from 'url';
 import mysql from 'mysql2/promise';
 import env from '../config/env.js';
 
-if (env.nodeEnv === 'production') {
-  console.error('db:reset no está permitido en producción.');
+const ALLOWED_ENVS = ['development', 'test'];
+
+if (!ALLOWED_ENVS.includes(env.nodeEnv)) {
+  console.error(`db:reset no está permitido en NODE_ENV=${env.nodeEnv}. Solo: ${ALLOWED_ENVS.join(', ')}`);
   process.exit(1);
 }
 

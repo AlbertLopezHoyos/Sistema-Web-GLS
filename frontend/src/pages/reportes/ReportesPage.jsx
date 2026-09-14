@@ -29,8 +29,7 @@ export const ReportesPage = () => {
 
   const load = useCallback(async () => {
     setLoading(true);
-    let data = await reportesService.consultar({ estado: estado || undefined, desde, hasta, cliente });
-    if (cliente) data.envios = await reportesService.filtrarPorCliente(data.envios, cliente);
+    const data = await reportesService.consultar({ estado: estado || undefined, desde, hasta, cliente });
     setReporte(data);
     setLoading(false);
   }, [estado, desde, hasta, cliente]);
@@ -53,7 +52,7 @@ export const ReportesPage = () => {
     else if (type === 'excel') exportExcel(rows, `reporte-gls-${ts}.xlsx`);
     else exportPDF(rows, 'Reporte de Envíos GLS', `reporte-gls-${ts}.pdf`);
 
-    reportesService.registrarExportacion(formats[type], 'Reportes').catch(() => {});
+    reportesService.registrarExportacion(formats[type]).catch(() => {});
     setExportMsg(`Exportación ${formats[type]} generada correctamente.`);
   };
 
