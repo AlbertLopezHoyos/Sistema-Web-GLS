@@ -19,13 +19,5 @@ export const DEFAULT_TARIFF = {
 };
 
 export const STORAGE_KEYS = {
-  SESSION: 'gls_session',
-  CLIENTES: 'gls_clientes',
-  ENVIOS: 'gls_envios',
-  HISTORIAL: 'gls_historial',
-  UBICACIONES: 'gls_ubicaciones',
-  USUARIOS: 'gls_usuarios',
-  AUDITORIA: 'gls_auditoria',
-  COUNTER: 'gls_counter',
   SIDEBAR: 'gls_sidebar_collapsed',
 };

@@ -7,8 +7,6 @@ import { ValidationError, UnauthorizedError, NotFoundError } from '../utils/erro
 import { auditService } from './auditService.js';
 import { usuariosRepository } from '../repositories/usuariosRepository.js';
 
-const ROLE_LABELS = { admin: 'Administrador', operaciones: 'Operaciones', consulta: 'Consulta' };
-
 export const authService = {
   async login(email, password, remember, meta = {}) {
     const errors = {};
@@ -42,7 +40,7 @@ export const authService = {
         descripcion: 'Intento de inicio de sesión con usuario inactivo',
         usuarioId: user.id,
         usuarioEmail: user.email,
-        rol: ROLE_LABELS[user.rol],
+        rol: user.rol,
         ip: meta.ip,
         userAgent: meta.userAgent,
       });
@@ -62,7 +60,7 @@ export const authService = {
       descripcion: 'Inicio de sesión exitoso',
       usuarioId: user.id,
       usuarioEmail: user.email,
-      rol: ROLE_LABELS[user.rol],
+      rol: user.rol,
       ip: meta.ip,
       userAgent: meta.userAgent,
     });
@@ -78,7 +76,7 @@ export const authService = {
         descripcion: 'Cierre de sesión',
         usuarioId: user.id,
         usuarioEmail: user.email,
-        rol: ROLE_LABELS[user.rol],
+        rol: user.rol,
         ip: meta.ip,
         userAgent: meta.userAgent,
       });

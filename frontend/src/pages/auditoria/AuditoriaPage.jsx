@@ -39,7 +39,7 @@ export const AuditoriaPage = () => {
 
   return (
     <div className="page">
-      <PageHeader title="Auditoría" subtitle="Registro de eventos del sistema (simulación frontend)" />
+      <PageHeader title="Auditoría" subtitle="Registro de acciones y eventos del sistema" />
       <div className="filters-bar">
         <SearchInput value={search} onChange={setSearch} placeholder="Buscar..." />
         <Input id="usuario" label="Usuario" value={usuario} onChange={(e) => setUsuario(e.target.value)} />

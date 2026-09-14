@@ -4,7 +4,7 @@ API REST Node.js + Express + MySQL para persistencia real del frontend React.
 
 ## Stack
 
-- Node.js 20+
+- Node.js 20.14+
 - Express
 - mysql2/promise
 - JWT en cookie HttpOnly

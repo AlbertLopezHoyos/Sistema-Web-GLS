@@ -10,8 +10,6 @@ import { historialMock } from '../seeds/historialMock.js';
 import { ubicacionesMock } from '../seeds/ubicacionesMock.js';
 import { auditoriaMock } from '../seeds/auditoriaMock.js';
 
-const ROLE_MAP = { admin: 'Administrador', operaciones: 'Operaciones', consulta: 'Consulta' };
-
 const getEstadoId = async (nombre) => {
   const [rows] = await query('SELECT id FROM estados_envio WHERE nombre = ? LIMIT 1', [nombre]);
   return rows[0]?.id;
@@ -162,7 +160,7 @@ const seedAuditoria = async () => {
       `INSERT INTO auditoria (id, usuario_id, usuario_email, rol, accion, modulo, descripcion, fecha)
        VALUES (?,?,?,?,?,?,?,?)
        ON DUPLICATE KEY UPDATE descripcion = VALUES(descripcion)`,
-      [a.id, userRows[0]?.id || null, a.usuario, ROLE_MAP[a.rol] || a.rol, a.accion, a.modulo, a.descripcion, new Date(a.fecha)]
+      [a.id, userRows[0]?.id || null, a.usuario, a.rol, a.accion, a.modulo, a.descripcion, new Date(a.fecha)]
     );
   }
   console.log(`✓ ${auditoriaMock.length} eventos auditoría`);
