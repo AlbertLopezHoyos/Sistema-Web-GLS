@@ -1,13 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, User, LogOut, ChevronDown } from 'lucide-react';
+import { Menu, User, LogOut, ChevronDown, UserCog, Shield, Database } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ROLE_LABELS } from '../../constants/roles';
 import { ROUTES } from '../../constants/routes';
 import { Breadcrumb } from '../common/Breadcrumb';
 
 export const Navbar = ({ onMenuToggle, breadcrumbs = [], title }) => {
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
@@ -58,6 +58,21 @@ export const Navbar = ({ onMenuToggle, breadcrumbs = [], title }) => {
             <Link to={ROUTES.PERFIL} className="navbar-dropdown-item" onClick={() => setMenuOpen(false)}>
               <User size={16} /> Mi perfil
             </Link>
+            {isAdmin && (
+              <>
+                <div className="navbar-dropdown-divider" />
+                <Link to={ROUTES.USUARIOS} className="navbar-dropdown-item" onClick={() => setMenuOpen(false)}>
+                  <UserCog size={16} /> Usuarios
+                </Link>
+                <Link to={ROUTES.AUDITORIA} className="navbar-dropdown-item" onClick={() => setMenuOpen(false)}>
+                  <Shield size={16} /> Auditoría
+                </Link>
+                <Link to={ROUTES.RESPALDO} className="navbar-dropdown-item" onClick={() => setMenuOpen(false)}>
+                  <Database size={16} /> Respaldo
+                </Link>
+              </>
+            )}
+            <div className="navbar-dropdown-divider" />
             <button type="button" className="navbar-dropdown-item" onClick={handleLogout}>
               <LogOut size={16} /> Cerrar sesión
             </button>

@@ -8,9 +8,6 @@ import {
   Route,
   MapPin,
   BarChart3,
-  UserCog,
-  Shield,
-  Database,
 } from 'lucide-react';
 import { ROUTES } from './routes';
 import { ROLES } from './roles';
@@ -61,26 +58,5 @@ export const MENU_ITEMS = [
     icon: BarChart3,
     to: ROUTES.REPORTES,
     roles: [ROLES.ADMIN, ROLES.OPERACIONES, ROLES.CONSULTA],
-  },
-  {
-    id: 'usuarios',
-    label: 'Usuarios',
-    icon: UserCog,
-    to: ROUTES.USUARIOS,
-    roles: [ROLES.ADMIN],
-  },
-  {
-    id: 'auditoria',
-    label: 'Auditoría',
-    icon: Shield,
-    to: ROUTES.AUDITORIA,
-    roles: [ROLES.ADMIN],
-  },
-  {
-    id: 'respaldo',
-    label: 'Respaldo',
-    icon: Database,
-    to: ROUTES.RESPALDO,
-    roles: [ROLES.ADMIN],
   },
 ];
