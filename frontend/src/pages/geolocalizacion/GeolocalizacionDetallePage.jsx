@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { enviosService } from '../../services/enviosService';
 import { ubicacionesService } from '../../services/ubicacionesService';
-import { useAuth } from '../../context/AuthContext';
 import { PageHeader } from '../../components/common/PageHeader';
 import { Card } from '../../components/common/Card';
 import { Badge } from '../../components/common/Badge';
@@ -17,7 +16,6 @@ import { DEFAULT_MAP_CENTER } from '../../constants/appConfig';
 
 export const GeolocalizacionDetallePage = () => {
   const { id } = useParams();
-  const { user } = useAuth();
   const [envio, setEnvio] = useState(null);
   const [ubicaciones, setUbicaciones] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -42,7 +40,7 @@ export const GeolocalizacionDetallePage = () => {
     setSaving(true);
     setErrors({});
     try {
-      await ubicacionesService.registrarUbicacion(id, form, user?.email);
+      await ubicacionesService.registrarUbicacion(id, form);
       setModalOpen(false);
       setForm({ direccion: '', latitud: String(DEFAULT_MAP_CENTER.lat), longitud: String(DEFAULT_MAP_CENTER.lng), observacion: '' });
       load();

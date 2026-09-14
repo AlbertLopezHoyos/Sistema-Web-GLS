@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { clientesService } from '../../services/clientesService';
 import { enviosService, validateEnvioForm } from '../../services/enviosService';
-import { useAuth } from '../../context/AuthContext';
 import { PageHeader } from '../../components/common/PageHeader';
 import { Input } from '../../components/common/Input';
 import { Select } from '../../components/common/Select';
@@ -17,7 +16,6 @@ const emptyParty = { nombres: '', documento: '', telefono: '', direccion: '' };
 const REQUIRED_LAST_TAB = 1; // 0: Cliente, 1: Datos del envío (2 y 3 opcionales)
 
 export const EnvioFormPage = () => {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const [clientes, setClientes] = useState([]);
   const [activeTab, setActiveTab] = useState(0);
@@ -154,7 +152,7 @@ export const EnvioFormPage = () => {
     setSaving(true);
     setErrors({});
     try {
-      const envio = await enviosService.createEnvio(buildPayload(), user?.email);
+      const envio = await enviosService.createEnvio(buildPayload());
       setSuccess(`Envío ${envio.codigoEnvio} registrado correctamente`);
       setTimeout(() => navigate(`${ROUTES.ENVIOS}/${envio.codigoEnvio}`), 1500);
     } catch (err) {

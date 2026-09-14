@@ -1,0 +1,116 @@
+Project sistema_web_gls {
+  database_type: "MySQL"
+  Note: "Modelo relacional Sistema Web GLS"
+}
+
+Table roles {
+  id int [pk, increment]
+  codigo varchar [unique, note: "admin|operaciones|consulta"]
+  etiqueta varchar
+}
+
+Table estados_envio {
+  id int [pk, increment]
+  nombre varchar [unique]
+  es_activo boolean
+}
+
+Table usuarios {
+  id varchar [pk]
+  email varchar [unique]
+  nombres varchar
+  rol_id int [ref: > roles.id]
+  activo boolean
+  password_hash varchar
+  created_at datetime
+  updated_at datetime
+}
+
+Table clientes {
+  id varchar [pk]
+  documento varchar [unique]
+  nombres varchar
+  telefono varchar
+  direccion text
+  empresa varchar
+  created_at datetime
+  updated_at datetime
+}
+
+Table secuencias_envio {
+  anio int [pk]
+  contador int
+}
+
+Table envios {
+  id bigint [pk, increment]
+  codigo_envio varchar [unique]
+  cliente_id varchar [ref: > clientes.id, null]
+  estado_actual_id int [ref: > estados_envio.id]
+  remitente_nombres varchar
+  remitente_documento varchar
+  remitente_telefono varchar
+  remitente_direccion text
+  destinatario_nombres varchar
+  destinatario_documento varchar
+  destinatario_telefono varchar
+  destinatario_direccion text
+  cliente_documento varchar [null]
+  cliente_nombres varchar [null]
+  origen varchar
+  destino varchar
+  tipo_carga varchar
+  peso decimal
+  dim_largo decimal
+  dim_ancho decimal
+  dim_alto decimal
+  dim_unidad varchar
+  observacion text
+  fecha_registro datetime
+  fecha_ultima_actualizacion datetime
+}
+
+Table cotizaciones_envio {
+  id bigint [pk, increment]
+  envio_id bigint [unique, ref: > envios.id]
+  moneda varchar
+  total_estimado decimal
+}
+
+Table historial_envios {
+  id varchar [pk]
+  envio_id bigint [ref: > envios.id]
+  estado_id int [ref: > estados_envio.id]
+  fecha_actualizacion datetime
+  observacion text
+  registrado_por varchar
+  usuario_id varchar [ref: > usuarios.id, null]
+}
+
+Table ubicaciones_envio {
+  id varchar [pk]
+  envio_id bigint [ref: > envios.id]
+  latitud decimal
+  longitud decimal
+  direccion text
+  fecha_registro datetime
+  usuario_id varchar [ref: > usuarios.id, null]
+}
+
+Table auditoria {
+  id varchar [pk]
+  usuario_id varchar [ref: > usuarios.id, null]
+  usuario_email varchar
+  accion varchar
+  modulo varchar
+  descripcion text
+  fecha datetime
+}
+
+Table respaldos {
+  id varchar [pk]
+  archivo varchar
+  fecha datetime
+  estado varchar
+  usuario_id varchar [ref: > usuarios.id, null]
+}

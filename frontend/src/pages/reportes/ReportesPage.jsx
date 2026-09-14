@@ -16,7 +16,6 @@ import { StatusChart } from '../../components/charts/StatusChart';
 import { TrendChart } from '../../components/charts/TrendChart';
 import { exportCSV, exportExcel, exportPDF, mapEnvioToRow } from '../../utils/exportUtils';
 import { formatDateTime } from '../../utils/formatters';
-import { logAudit } from '../../utils/auditHelper';
 import { SHIPMENT_STATUSES } from '../../constants/shipmentStatus';
 
 export const ReportesPage = () => {
@@ -54,11 +53,7 @@ export const ReportesPage = () => {
     else if (type === 'excel') exportExcel(rows, `reporte-gls-${ts}.xlsx`);
     else exportPDF(rows, 'Reporte de Envíos GLS', `reporte-gls-${ts}.pdf`);
 
-    logAudit({
-      accion: 'exportacion_archivo',
-      modulo: 'Reportes',
-      descripcion: `Exportación ${formats[type]} de reporte (${rows.length} registros)`,
-    });
+    reportesService.registrarExportacion(formats[type], 'Reportes').catch(() => {});
     setExportMsg(`Exportación ${formats[type]} generada correctamente.`);
   };
 

@@ -7,7 +7,7 @@ import { Alert } from '../common/Alert';
 import { SHIPMENT_STATUSES } from '../../constants/shipmentStatus';
 import { trazabilidadService } from '../../services/trazabilidadService';
 
-export const UpdateStatusModal = ({ isOpen, onClose, codigoEnvio, estadoActual, onSuccess, registradoPor }) => {
+export const UpdateStatusModal = ({ isOpen, onClose, codigoEnvio, estadoActual, onSuccess }) => {
   const [form, setForm] = useState({
     estado: estadoActual || '',
     observacion: '',
@@ -31,7 +31,7 @@ export const UpdateStatusModal = ({ isOpen, onClose, codigoEnvio, estadoActual, 
     setErrors({});
     setGeneralError('');
     try {
-      const result = await trazabilidadService.actualizarEstado(codigoEnvio, form, registradoPor);
+      const result = await trazabilidadService.actualizarEstado(codigoEnvio, form);
       onSuccess?.(result);
       onClose();
       setForm({ estado: '', observacion: '', evidenciaReferencia: '', evidenciaDetalle: '', receptorNombre: '', receptorDocumento: '' });

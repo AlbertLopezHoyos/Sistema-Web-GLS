@@ -1,17 +1,50 @@
-# Base de datos - Sistema Web GLS
+# Base de datos — Sistema Web GLS
 
-La base de datos definitiva del Sistema Web GLS será implementada mediante MySQL.
+Base de datos MySQL: **sistema_web_gls** (utf8mb4 / utf8mb4_unicode_ci)
 
-En una etapa posterior esta carpeta contendrá:
+## Tablas
 
-- scripts de creación
-- tablas
-- claves primarias
-- claves foráneas
-- restricciones
-- índices
-- datos iniciales
-- scripts de prueba
-- scripts de respaldo
+| Tabla | Propósito | PK | FK principales |
+|---|---|---|---|
+| `roles` | Catálogo admin/operaciones/consulta | id | — |
+| `estados_envio` | Estados del ciclo de envío | id | — |
+| `usuarios` | Cuentas del sistema | id | rol_id → roles |
+| `clientes` | Clientes registrados | id | — |
+| `secuencias_envio` | Contador anual ENV-AAAA-NNNN | anio | — |
+| `envios` | Envíos con snapshot remitente/destinatario/cliente | id | cliente_id, estado_actual_id |
+| `cotizaciones_envio` | Cotización estimada (0..1) | id | envio_id |
+| `historial_envios` | Trazabilidad por envío | id | envio_id, estado_id, usuario_id |
+| `ubicaciones_envio` | Puntos de control referenciales | id | envio_id, usuario_id |
+| `auditoria` | Eventos de auditoría | id | usuario_id |
+| `respaldos` | Metadata de respaldos MySQL | id | usuario_id |
 
-Actualmente la base de datos todavía no debe implementarse.
+## Índices relevantes
+
+- `usuarios.email` (UNIQUE)
+- `clientes.documento` (UNIQUE)
+- `envios.codigo_envio` (UNIQUE)
+- `envios.estado_actual_id`, `envios.cliente_id`, `envios.fecha_registro`
+- `historial_envios.envio_id`, `historial_envios.fecha_actualizacion`
+- `ubicaciones_envio.envio_id`
+- `auditoria.fecha`, `auditoria.usuario_id`, `auditoria.accion`, `auditoria.modulo`
+
+## Scripts
+
+```bash
+cd backend
+cp .env.example .env
+npm run db:migrate
+npm run db:seed
+```
+
+Solo desarrollo:
+
+```bash
+npm run db:reset
+npm run db:migrate
+npm run db:seed
+```
+
+## Diagrama
+
+Ver `model.dbml` (compatible con dbdiagram.io).

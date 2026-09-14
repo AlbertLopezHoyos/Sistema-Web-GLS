@@ -1,7 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { authService } from '../../services/authService';
-import { authSession } from '../../utils/authSession';
 import { PageHeader } from '../../components/common/PageHeader';
 import { Card } from '../../components/common/Card';
 import { Input } from '../../components/common/Input';
@@ -15,7 +14,11 @@ export const PerfilPage = () => {
   const [nombres, setNombres] = useState(user?.nombres || '');
   const [saving, setSaving] = useState(false);
   const [alert, setAlert] = useState('');
-  const session = authSession.get();
+  const [sessionInfo, setSessionInfo] = useState(null);
+
+  useEffect(() => {
+    authService.getSessionInfo().then(setSessionInfo);
+  }, [user]);
 
   const handleSave = async () => {
     setSaving(true);
@@ -44,9 +47,9 @@ export const PerfilPage = () => {
         </Card>
         <Card title="Información de sesión">
           <dl>
-            <dt>Inicio de sesión</dt><dd>{session?.loginAt ? formatDateTime(session.loginAt) : '—'}</dd>
-            <dt>Recordar sesión</dt><dd>{session?.remember ? 'Sí (localStorage)' : 'No (sessionStorage)'}</dd>
-            <dt>Almacenamiento</dt><dd>{session?.remember ? 'Persistente' : 'Temporal'}</dd>
+            <dt>Inicio de sesión</dt><dd>{sessionInfo?.loginAt ? formatDateTime(sessionInfo.loginAt) : '—'}</dd>
+            <dt>Recordar sesión</dt><dd>{sessionInfo?.remember ? 'Sí' : 'No'}</dd>
+            <dt>Autenticación</dt><dd>Cookie HttpOnly (servidor)</dd>
           </dl>
         </Card>
         <Card title="Editar nombre">

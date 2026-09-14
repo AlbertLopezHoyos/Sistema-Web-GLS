@@ -2,104 +2,60 @@
 
 Sistema web de información para el seguimiento y trazabilidad de envíos en el área de Operaciones de **Grupo Logístico Salazar S.A.C.**
 
-## Descripción
+## Arquitectura
 
-Plataforma web administrativa orientada al registro, consulta, seguimiento y trazabilidad de envíos logísticos, con soporte para gestión de clientes, reportes operativos, geolocalización referencial por puntos de control y administración de usuarios.
-
-## Objetivo
-
-Centralizar la información operativa de envíos en una aplicación web accesible desde navegador, facilitando el control del ciclo de vida de cada envío desde su registro hasta la entrega.
+```
+Usuario → Navegador → React → API REST → Node.js/Express → MySQL
+```
 
 ## Estado del proyecto
 
 | Componente | Estado |
 |---|---|
 | Frontend React | **Implementado** |
-| Backend API REST | Pendiente |
-| Base de datos MySQL | Pendiente |
-| Datos actuales | Mock / localStorage / sessionStorage |
-
-## Arquitectura prevista
-
-```
-Usuario → Navegador Web → Frontend React → API REST → Backend → MySQL
-```
-
-En esta etapa:
-
-```
-Usuario → Navegador Web → Frontend React → Servicios Mock
-```
-
-## Tecnologías
-
-- React 19 + Vite
-- JavaScript
-- React Router DOM
-- Lucide React
-- Chart.js + react-chartjs-2
-- Leaflet + React Leaflet + OpenStreetMap
-- jsPDF, XLSX (exportaciones)
-
-## Estructura del repositorio
-
-```
-Sistema-Web-GLS/
-├── frontend/     # Aplicación web (implementada)
-├── backend/      # Preparado para etapa posterior
-├── database/     # Preparado para MySQL
-├── README.md
-└── .gitignore
-```
-
-## Módulos
-
-1. Inicio de sesión
-2. Dashboard
-3. Gestión de clientes
-4. Registro de envíos
-5. Consulta de envíos
-6. Seguimiento y trazabilidad
-7. Historial general
-8. Geolocalización (puntos de control)
-9. Reportes con exportación
-10. Administración de usuarios
-11. Auditoría
-12. Respaldo (simulado)
-13. Perfil de usuario
-
-## Roles
-
-| Rol | Permisos |
-|---|---|
-| **Administrador** | Acceso completo incluyendo usuarios, auditoría y respaldo |
-| **Operaciones** | Operaciones CRUD sobre clientes, envíos, estados y ubicaciones |
-| **Consulta** | Solo lectura en módulos permitidos |
+| Backend Node.js / Express | **Implementado** |
+| API REST | **Implementada** |
+| MySQL | **Implementado** (requiere instalación/configuración local) |
+| Autenticación | **Real** (JWT HttpOnly cookie) |
+| Persistencia | **MySQL** |
+| Datos mock runtime | **Eliminados** |
+| Geolocalización | Puntos de control referenciales |
+| QR / Firebase / Electron | **No existen** |
 
 ## Instalación
 
+### 1. Base de datos
+
+Instale MySQL 8+, cree usuario y base. Configure `backend/.env` desde `.env.example`.
+
 ```bash
-cd frontend
+cd backend
 npm install
+npm run db:migrate
+npm run db:seed
 ```
 
-## Ejecución
+### 2. Backend
 
 ```bash
-cd frontend
+cd backend
 npm run dev
 ```
 
-Abrir `http://localhost:5173`
+API: `http://localhost:3000/api`
 
-## Build
+### 3. Frontend
 
 ```bash
 cd frontend
-npm run build
+cp .env.example .env
+npm install
+npm run dev
 ```
 
-## Datos mock — credenciales demo
+App: `http://localhost:5173`
+
+## Credenciales demo
 
 | Rol | Correo | Contraseña |
 |---|---|---|
@@ -107,31 +63,26 @@ npm run build
 | Operaciones | operaciones@demo-gls.local | demo123 |
 | Consulta | consulta@demo-gls.local | demo123 |
 
-## Próxima etapa
+## Roles
 
-- Backend con API REST
-- Autenticación y autorización real (JWT)
-- Modelo relacional MySQL
-- Auditoría y respaldos reales
-- Validaciones del servidor
+| Rol | Permisos |
+|---|---|
+| **Administrador** | Acceso completo |
+| **Operaciones** | CRUD operativo (clientes, envíos, trazabilidad, ubicaciones, reportes) |
+| **Consulta** | Solo lectura |
 
-## Base de datos
+## Estructura
 
-La base de datos definitiva será **MySQL**. Los scripts y el modelo relacional se desarrollarán en una etapa posterior.
+```
+Sistema-Web-GLS/
+├── frontend/     React + Vite
+├── backend/      Express + mysql2
+├── database/     Migraciones SQL y modelo relacional
+└── README.md
+```
 
-## Sesión mock
+## Documentación
 
-- **Recordar sesión activado:** la sesión se guarda en `localStorage` y persiste al cerrar el navegador.
-- **Recordar sesión desactivado:** la sesión se guarda en `sessionStorage` y se elimina al cerrar la pestaña/navegador.
-
-Los datos operativos mock (clientes, envíos, historial, etc.) permanecen en `localStorage`.
-
-## Seguridad
-
-El control de roles actual es **demostrativo en frontend**. La seguridad real será responsabilidad del backend en la siguiente etapa.
-
-## Consideraciones
-
-- Los envíos se identifican por código único `ENV-AAAA-NNNN`
-- La geolocalización usa puntos de control registrados, no GPS en tiempo real
-- Los respaldos están simulados hasta implementar backend y MySQL
+- [Backend README](./backend/README.md)
+- [API REST](./backend/docs/API.md)
+- [Modelo MySQL](./database/README.md)
