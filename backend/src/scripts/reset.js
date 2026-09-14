@@ -1,21 +1,12 @@
-import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import mysql from 'mysql2/promise';
 import env from '../config/env.js';
+import { assertResetAllowed, quoteDbName } from '../utils/dbName.js';
 
-const ALLOWED_ENVS = ['development', 'test'];
+export const dropDatabase = async (dbName = env.db.name) => {
+  assertResetAllowed(dbName);
 
-if (!ALLOWED_ENVS.includes(env.nodeEnv)) {
-  console.error(`db:reset no está permitido en NODE_ENV=${env.nodeEnv}. Solo: ${ALLOWED_ENVS.join(', ')}`);
-  process.exit(1);
-}
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const resetSql = path.resolve(__dirname, '../../../database/reset.sql');
-
-const run = async () => {
-  const sql = await fs.readFile(resetSql, 'utf8');
   const conn = await mysql.createConnection({
     host: env.db.host,
     port: env.db.port,
@@ -23,16 +14,24 @@ const run = async () => {
     password: env.db.password,
     multipleStatements: true,
   });
+
   try {
-    console.log('Eliminando base de datos...');
-    await conn.query(sql);
-    console.log('Base eliminada. Ejecute npm run db:migrate && npm run db:seed');
+    console.log(`Eliminando base de datos ${dbName}...`);
+    await conn.query(`DROP DATABASE IF EXISTS ${quoteDbName(dbName)}`);
+    console.log(`Base ${dbName} eliminada.`);
   } finally {
     await conn.end();
   }
 };
 
-run().catch((err) => {
-  console.error('Error en reset:', err.message);
-  process.exit(1);
-});
+const isDirectRun = process.argv[1]
+  && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
+
+if (isDirectRun) {
+  dropDatabase()
+    .then(() => console.log('Ejecute npm run db:migrate && npm run db:seed'))
+    .catch((err) => {
+      console.error('Error en reset:', err.message);
+      process.exit(1);
+    });
+}

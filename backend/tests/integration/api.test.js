@@ -1,10 +1,13 @@
 import { test, before, after, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import request from 'supertest';
-import app from '../../src/app.js';
-import { isDbAvailable } from '../helpers/setup.js';
+import env from '../../src/config/env.js';
+import { isMySQLServerAvailable, prepareTestDbOnce } from '../helpers/prepareTestDb.js';
 import { loginAs, authRequest } from '../helpers/authHelper.js';
 import { query, closePool } from '../../src/config/db.js';
+import { getDevDbName } from '../../src/utils/dbName.js';
+
+let app;
 let dbReady = false;
 let adminCookie;
 let operacionesCookie;
@@ -40,8 +43,10 @@ const sampleEnvio = () => ({
 });
 
 before(async () => {
-  dbReady = await isDbAvailable();
-  if (!dbReady) return;
+  if (!(await isMySQLServerAvailable())) return;
+  await prepareTestDbOnce();
+  app = (await import('../../src/app.js')).default;
+  dbReady = true;
 
   ({ cookie: adminCookie } = await loginAs(app, 'admin@demo-gls.local'));
   ({ cookie: operacionesCookie } = await loginAs(app, 'operaciones@demo-gls.local'));
@@ -53,11 +58,23 @@ after(async () => {
 });
 
 describe('API integración', () => {
+  test('NODE_ENV=test usa base aislada', () => {
+    assert.equal(process.env.NODE_ENV, 'test');
+    assert.notEqual(env.db.name, getDevDbName());
+    assert.ok(env.db.name.endsWith('_test'));
+  });
+
   test('GET /api/health', async (t) => {
     if (!dbReady) { t.skip('MySQL no disponible'); return; }
     const res = await request(app).get('/api/health');
     assert.equal(res.status, 200);
     assert.equal(res.body.data.database, 'connected');
+  });
+
+  test('GET /api/respaldos → 404', async (t) => {
+    if (!dbReady) { t.skip('MySQL no disponible'); return; }
+    const res = await authRequest(app, 'get', '/api/respaldos', adminCookie);
+    assert.equal(res.status, 404);
   });
 
   test('login correcto', async (t) => {
@@ -108,7 +125,6 @@ describe('API integración', () => {
     const res = await authRequest(app, 'post', '/api/envios', operacionesCookie).send(sampleEnvio());
     assert.equal(res.status, 201);
     assert.match(res.body.data.codigoEnvio, /^ENV-\d{4}-\d{4}$/);
-    t.diagnostic(`codigo=${res.body.data.codigoEnvio}`);
   });
 
   test('historial inicial Registrado', async (t) => {

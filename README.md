@@ -22,7 +22,9 @@ Backend interno: `Routes → Controllers → Services → Repositories → MySQL
 | Persistencia | **MySQL** |
 | Datos mock runtime | **Eliminados** |
 | Geolocalización | Puntos de control referenciales |
-| QR / Firebase / Electron | **No existen** |
+| Reportes | **Implementados** |
+| Auditoría | **Implementada** |
+| QR / Firebase / Electron / Respaldo | **No existen** |
 
 ## Instalación
 

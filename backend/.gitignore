@@ -1,6 +1,5 @@
 .env
 node_modules/
-backups/*.sql
 logs/
 coverage/
 *.log

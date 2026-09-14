@@ -1,7 +1,9 @@
 import mysql from 'mysql2/promise';
 import env from './env.js';
 
-const pool = mysql.createPool({
+let pool = null;
+
+const createPoolInstance = () => mysql.createPool({
   host: env.db.host,
   port: env.db.port,
   user: env.db.user,
@@ -14,12 +16,17 @@ const pool = mysql.createPool({
   dateStrings: false,
 });
 
-export const query = (sql, params = []) => pool.execute(sql, params);
+export const initPool = () => {
+  if (!pool) pool = createPoolInstance();
+  return pool;
+};
 
-export const getConnection = () => pool.getConnection();
+export const query = (sql, params = []) => initPool().execute(sql, params);
+
+export const getConnection = () => initPool().getConnection();
 
 export const ping = async () => {
-  const conn = await pool.getConnection();
+  const conn = await getConnection();
   try {
     await conn.ping();
     return true;
@@ -28,6 +35,16 @@ export const ping = async () => {
   }
 };
 
-export const closePool = () => pool.end();
+export const closePool = async () => {
+  if (pool) {
+    await pool.end();
+    pool = null;
+  }
+};
 
-export default pool;
+export const recreatePool = () => {
+  pool = createPoolInstance();
+  return pool;
+};
+
+export default initPool();

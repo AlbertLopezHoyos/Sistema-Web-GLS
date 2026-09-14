@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, User, LogOut, ChevronDown, UserCog, Shield, Database } from 'lucide-react';
+import { Menu, User, LogOut, ChevronDown, UserCog, Shield } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { ROLE_LABELS } from '../../constants/roles';
 import { ROUTES } from '../../constants/routes';
@@ -66,9 +66,6 @@ export const Navbar = ({ onMenuToggle, breadcrumbs = [], title }) => {
                 </Link>
                 <Link to={ROUTES.AUDITORIA} className="navbar-dropdown-item" onClick={() => setMenuOpen(false)}>
                   <Shield size={16} /> Auditoría
-                </Link>
-                <Link to={ROUTES.RESPALDO} className="navbar-dropdown-item" onClick={() => setMenuOpen(false)}>
-                  <Database size={16} /> Respaldo
                 </Link>
               </>
             )}

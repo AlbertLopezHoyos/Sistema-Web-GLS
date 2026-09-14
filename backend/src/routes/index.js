@@ -7,7 +7,6 @@ import historialRoutes from './historialRoutes.js';
 import reportesRoutes from './reportesRoutes.js';
 import usuariosRoutes from './usuariosRoutes.js';
 import auditoriaRoutes from './auditoriaRoutes.js';
-import respaldoRoutes from './respaldoRoutes.js';
 import { ok } from '../utils/apiResponse.js';
 
 const router = Router();
@@ -28,6 +27,5 @@ router.use('/historial', historialRoutes);
 router.use('/reportes', reportesRoutes);
 router.use('/usuarios', usuariosRoutes);
 router.use('/auditoria', auditoriaRoutes);
-router.use('/respaldos', respaldoRoutes);
 
 export default router;

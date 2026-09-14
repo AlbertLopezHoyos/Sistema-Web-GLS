@@ -16,7 +16,6 @@ Base de datos MySQL: **sistema_web_gls** (utf8mb4 / utf8mb4_unicode_ci)
 | `historial_envios` | Trazabilidad por envío | id | envio_id, estado_id, usuario_id |
 | `ubicaciones_envio` | Puntos de control referenciales | id | envio_id, usuario_id |
 | `auditoria` | Eventos de auditoría | id | usuario_id |
-| `respaldos` | Metadata de respaldos MySQL | id | usuario_id |
 
 ## Índices relevantes
 

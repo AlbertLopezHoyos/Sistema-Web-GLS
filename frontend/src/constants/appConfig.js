@@ -26,7 +26,6 @@ export const STORAGE_KEYS = {
   UBICACIONES: 'gls_ubicaciones',
   USUARIOS: 'gls_usuarios',
   AUDITORIA: 'gls_auditoria',
-  RESPALDO: 'gls_respaldo',
   COUNTER: 'gls_counter',
   SIDEBAR: 'gls_sidebar_collapsed',
 };

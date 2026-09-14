@@ -84,11 +84,3 @@ Filtros GET `/envios`: estado, codigo, cliente, desde, hasta
 | GET | `/auditoria` |
 | GET | `/auditoria/modulos` |
 | GET | `/auditoria/acciones` |
-
-## Respaldos (solo admin)
-
-| Método | Ruta | Body |
-|---|---|---|
-| GET | `/respaldos` | — |
-| POST | `/respaldos` | — |
-| POST | `/respaldos/:id/restaurar` | confirmar: true |

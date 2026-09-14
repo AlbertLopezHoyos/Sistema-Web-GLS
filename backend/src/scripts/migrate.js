@@ -3,11 +3,14 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import mysql from 'mysql2/promise';
 import env from '../config/env.js';
+import { assertValidDbName, quoteDbName } from '../utils/dbName.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const migrationsDir = path.resolve(__dirname, '../../../database/migrations');
 
-const run = async () => {
+export const runMigrations = async (dbName = env.db.name) => {
+  assertValidDbName(dbName);
+
   const files = (await fs.readdir(migrationsDir))
     .filter((f) => f.endsWith('.sql'))
     .sort();
@@ -21,19 +24,29 @@ const run = async () => {
   });
 
   try {
+    await conn.query(
+      `CREATE DATABASE IF NOT EXISTS ${quoteDbName(dbName)} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`
+    );
+    await conn.changeUser({ database: dbName });
+
     for (const file of files) {
       const sql = await fs.readFile(path.join(migrationsDir, file), 'utf8');
       console.log(`Ejecutando ${file}...`);
       await conn.query(sql);
       console.log(`✓ ${file}`);
     }
-    console.log('Migraciones completadas.');
+    console.log(`Migraciones completadas en ${dbName}.`);
   } finally {
     await conn.end();
   }
 };
 
-run().catch((err) => {
-  console.error('Error en migraciones:', err.message);
-  process.exit(1);
-});
+const isDirectRun = process.argv[1]
+  && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
+
+if (isDirectRun) {
+  runMigrations().catch((err) => {
+    console.error('Error en migraciones:', err.message);
+    process.exit(1);
+  });
+}

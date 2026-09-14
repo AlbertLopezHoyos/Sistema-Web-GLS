@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { getDevDbName, getTestDbName } from '../utils/dbName.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
@@ -21,6 +22,20 @@ if (isProduction && !dbPassword) {
   process.exit(1);
 }
 
+const devDbName = getDevDbName();
+const testDbName = getTestDbName();
+
+if (isTest) {
+  if (testDbName === devDbName) {
+    console.error('Las pruebas requieren una base MySQL aislada.');
+    process.exit(1);
+  }
+  if (!testDbName.endsWith('_test')) {
+    console.error('La base de pruebas debe terminar en _test.');
+    process.exit(1);
+  }
+}
+
 const env = {
   nodeEnv,
   isProduction,
@@ -30,9 +45,9 @@ const env = {
   db: {
     host: process.env.DB_HOST || 'localhost',
     port: Number(process.env.DB_PORT || 3306),
-    name: isTest
-      ? (process.env.DB_NAME_TEST || process.env.DB_NAME || 'sistema_web_gls_test')
-      : (process.env.DB_NAME || 'sistema_web_gls'),
+    name: isTest ? testDbName : devDbName,
+    devName: devDbName,
+    testName: testDbName,
     user: process.env.DB_USER || 'root',
     password: dbPassword,
   },
@@ -45,11 +60,6 @@ const env = {
   cookie: {
     name: process.env.COOKIE_NAME || 'gls_token',
     secure: isProduction ? true : process.env.COOKIE_SECURE === 'true',
-  },
-  backup: {
-    dir: process.env.BACKUP_DIR || './backups',
-    mysqldumpPath: process.env.MYSQLDUMP_PATH || 'mysqldump',
-    mysqlPath: process.env.MYSQL_PATH || 'mysql',
   },
 };
 

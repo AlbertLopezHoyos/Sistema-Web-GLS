@@ -72,7 +72,6 @@ src/
 | `/reportes` | Reportes y exportación |
 | `/usuarios` | Admin usuarios |
 | `/auditoria` | Log de auditoría |
-| `/respaldo` | Respaldo simulado |
 | `/perfil` | Perfil de usuario |
 
 ## Sesión

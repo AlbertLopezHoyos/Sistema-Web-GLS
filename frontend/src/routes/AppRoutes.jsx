@@ -16,7 +16,6 @@ import { GeolocalizacionDetallePage } from '../pages/geolocalizacion/Geolocaliza
 import { ReportesPage } from '../pages/reportes/ReportesPage';
 import { UsuariosPage } from '../pages/usuarios/UsuariosPage';
 import { AuditoriaPage } from '../pages/auditoria/AuditoriaPage';
-import { RespaldoPage } from '../pages/respaldo/RespaldoPage';
 import { PerfilPage } from '../pages/perfil/PerfilPage';
 import { NotFoundPage } from '../pages/errors/NotFoundPage';
 import { ROUTES } from '../constants/routes';
@@ -42,7 +41,6 @@ export const AppRoutes = () => (
       <Route path={ROUTES.REPORTES} element={<ReportesPage />} />
       <Route path={ROUTES.USUARIOS} element={<ProtectedRoute roles={[ROLES.ADMIN]}><UsuariosPage /></ProtectedRoute>} />
       <Route path={ROUTES.AUDITORIA} element={<ProtectedRoute roles={[ROLES.ADMIN]}><AuditoriaPage /></ProtectedRoute>} />
-      <Route path={ROUTES.RESPALDO} element={<ProtectedRoute roles={[ROLES.ADMIN]}><RespaldoPage /></ProtectedRoute>} />
       <Route path={ROUTES.PERFIL} element={<PerfilPage />} />
     </Route>
     <Route path="*" element={<NotFoundPage />} />

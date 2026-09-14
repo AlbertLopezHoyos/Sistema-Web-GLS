@@ -1,3 +1,5 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
 import env from '../config/env.js';
 import { query, getConnection } from '../config/db.js';
@@ -166,7 +168,7 @@ const seedAuditoria = async () => {
   console.log(`✓ ${auditoriaMock.length} eventos auditoría`);
 };
 
-const run = async () => {
+export const runSeeds = async () => {
   console.log('Sembrando datos demo...');
   await seedUsuarios();
   await seedClientes();
@@ -177,7 +179,12 @@ const run = async () => {
   console.log('Seed completado.');
 };
 
-run().catch((err) => {
-  console.error('Error en seed:', err.message);
-  process.exit(1);
-});
+const isDirectRun = process.argv[1]
+  && path.resolve(fileURLToPath(import.meta.url)) === path.resolve(process.argv[1]);
+
+if (isDirectRun) {
+  runSeeds().catch((err) => {
+    console.error('Error en seed:', err.message);
+    process.exit(1);
+  });
+}

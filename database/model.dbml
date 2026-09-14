@@ -106,11 +106,3 @@ Table auditoria {
   descripcion text
   fecha datetime
 }
-
-Table respaldos {
-  id varchar [pk]
-  archivo varchar
-  fecha datetime
-  estado varchar
-  usuario_id varchar [ref: > usuarios.id, null]
-}

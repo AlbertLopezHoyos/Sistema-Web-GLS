@@ -15,7 +15,6 @@ export const ROUTES = {
   REPORTES: '/reportes',
   USUARIOS: '/usuarios',
   AUDITORIA: '/auditoria',
-  RESPALDO: '/respaldo',
   PERFIL: '/perfil',
 };
 

@@ -1,5 +1,4 @@
 -- Catálogos base — idempotente
-USE sistema_web_gls;
 
 INSERT INTO roles (codigo, etiqueta) VALUES
   ('admin', 'Administrador'),

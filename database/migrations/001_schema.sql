@@ -1,11 +1,5 @@
 -- Sistema Web GLS — Esquema relacional MySQL 8+
--- Base de datos: sistema_web_gls
-
-CREATE DATABASE IF NOT EXISTS sistema_web_gls
-  CHARACTER SET utf8mb4
-  COLLATE utf8mb4_unicode_ci;
-
-USE sistema_web_gls;
+-- Ejecutar sobre la base seleccionada por env.db.name
 
 -- ---------------------------------------------------------------------------
 -- Catálogos
@@ -227,22 +221,4 @@ CREATE TABLE IF NOT EXISTS auditoria (
   KEY idx_auditoria_accion (accion),
   KEY idx_auditoria_modulo (modulo),
   CONSTRAINT fk_auditoria_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios (id) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ---------------------------------------------------------------------------
--- Respaldos
--- ---------------------------------------------------------------------------
-
-CREATE TABLE IF NOT EXISTS respaldos (
-  id VARCHAR(50) NOT NULL,
-  archivo VARCHAR(255) NOT NULL,
-  fecha DATETIME(3) NOT NULL,
-  estado VARCHAR(100) NOT NULL,
-  tamano_bytes BIGINT UNSIGNED NULL,
-  tipo VARCHAR(100) NOT NULL DEFAULT 'Exportación MySQL',
-  usuario_id VARCHAR(50) NULL,
-  created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-  PRIMARY KEY (id),
-  KEY idx_respaldos_fecha (fecha),
-  CONSTRAINT fk_respaldos_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios (id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

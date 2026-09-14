@@ -5,7 +5,7 @@ import { clientesMock } from '../mocks/clientesMock';
 import { enviosMock, COUNTER_INITIAL } from '../mocks/enviosMock';
 import { historialMock } from '../mocks/historialMock';
 import { ubicacionesMock } from '../mocks/ubicacionesMock';
-import { auditoriaMock, respaldoMock } from '../mocks/auditoriaMock';
+import { auditoriaMock } from '../mocks/auditoriaMock';
 
 const initStore = (key, mockData) => {
   const existing = storage.get(key);
@@ -30,8 +30,6 @@ export const getStore = (key) => {
       return initStore(key, ubicacionesMock);
     case STORAGE_KEYS.AUDITORIA:
       return initStore(key, auditoriaMock);
-    case STORAGE_KEYS.RESPALDO:
-      return initStore(key, respaldoMock);
     case STORAGE_KEYS.COUNTER:
       return initStore(key, COUNTER_INITIAL);
     default:
