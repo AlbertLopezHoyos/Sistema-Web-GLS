@@ -50,7 +50,7 @@ export const UsuariosPage = () => {
 
   const openEdit = (user) => {
     setEditUser(user);
-    setForm({ nombres: user.nombres, email: user.email, password: '', rol: user.rol });
+    setForm({ nombres: user.nombres, email: user.email, password: '', rol: user.rol, activo: user.activo });
     setErrors({});
     setModalOpen(true);
   };
@@ -65,8 +65,11 @@ export const UsuariosPage = () => {
       setModalOpen(false);
       load();
     } catch (err) {
-      if (err.errors) setErrors(err.errors);
-      else if (err.message) setAlert({ type: 'error', message: err.message });
+      if (err.errors && Object.keys(err.errors).length > 0) {
+        setErrors(err.errors);
+      } else if (err.message) {
+        setAlert({ type: 'error', message: err.message });
+      }
     } finally {
       setSaving(false);
     }
