@@ -69,6 +69,7 @@ export const usuariosService = {
 
     const nuevoActivo = data.activo !== undefined ? Boolean(data.activo) : existing.activo;
     await this.assertCanChangeActivo(existing, actor, nuevoActivo);
+    await this.assertCanChangeRol(existing, data.rol);
 
     const rolId = await usuariosRepository.getRolId(data.rol);
     const now = new Date();
@@ -121,6 +122,15 @@ export const usuariosService = {
       const otrosAdmins = await usuariosRepository.countActiveAdmins(targetUser.id);
       if (otrosAdmins === 0) {
         throw new ConflictError('No se puede desactivar al último administrador activo');
+      }
+    }
+  },
+
+  async assertCanChangeRol(targetUser, nuevoRol) {
+    if (targetUser.rol === 'admin' && nuevoRol !== 'admin') {
+      const otrosAdmins = await usuariosRepository.countActiveAdmins(targetUser.id);
+      if (otrosAdmins === 0) {
+        throw new ConflictError('No se puede cambiar el rol del último administrador activo');
       }
     }
   },

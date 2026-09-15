@@ -24,7 +24,7 @@ export const UsuariosPage = () => {
   const [form, setForm] = useState({ nombres: '', email: '', password: '', rol: ROLES.OPERACIONES });
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
-  const [alert, setAlert] = useState('');
+  const [alert, setAlert] = useState(null);
   const debSearch = useDebounce(search);
 
   const load = async () => {
@@ -61,25 +61,34 @@ export const UsuariosPage = () => {
     try {
       if (editUser) await usuariosService.updateUsuario(editUser.id, form);
       else await usuariosService.createUsuario(form);
-      setAlert(editUser ? 'Usuario actualizado' : 'Usuario creado');
+      setAlert({ type: 'success', message: editUser ? 'Usuario actualizado' : 'Usuario creado' });
       setModalOpen(false);
       load();
     } catch (err) {
       if (err.errors) setErrors(err.errors);
+      else if (err.message) setAlert({ type: 'error', message: err.message });
     } finally {
       setSaving(false);
     }
   };
 
   const handleToggle = async (user) => {
-    await usuariosService.toggleActivo(user.id);
-    load();
+    try {
+      await usuariosService.toggleActivo(user.id);
+      setAlert({
+        type: 'success',
+        message: user.activo ? 'Usuario desactivado correctamente' : 'Usuario activado correctamente',
+      });
+      load();
+    } catch (err) {
+      setAlert({ type: 'error', message: err.message || 'Error al cambiar el estado del usuario' });
+    }
   };
 
   return (
     <div className="page">
       <PageHeader title="Administración de usuarios" subtitle="Gestión de cuentas del sistema" actions={<Button icon={Plus} onClick={openCreate}>Nuevo usuario</Button>} />
-      {alert && <Alert type="success" message={alert} onClose={() => setAlert('')} />}
+      {alert && <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />}
       <SearchInput value={search} onChange={setSearch} placeholder="Buscar por nombre o correo..." />
       {loading ? <Loader /> : (
         <>

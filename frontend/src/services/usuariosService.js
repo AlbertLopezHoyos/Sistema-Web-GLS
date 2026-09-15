@@ -1,10 +1,5 @@
 import { apiClient, ApiError } from './apiClient';
 
-const handleError = (err) => {
-  if (err instanceof ApiError && err.errors) throw { errors: err.errors };
-  throw err;
-};
-
 export const usuariosService = {
   async getUsuarios() {
     return apiClient.get('/usuarios');
@@ -20,19 +15,11 @@ export const usuariosService = {
   },
 
   async createUsuario(data) {
-    try {
-      return await apiClient.post('/usuarios', data);
-    } catch (err) {
-      handleError(err);
-    }
+    return apiClient.post('/usuarios', data);
   },
 
   async updateUsuario(id, data) {
-    try {
-      return await apiClient.put(`/usuarios/${id}`, data);
-    } catch (err) {
-      handleError(err);
-    }
+    return apiClient.put(`/usuarios/${id}`, data);
   },
 
   async toggleActivo(id) {

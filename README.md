@@ -26,11 +26,17 @@ Backend interno: `Routes → Controllers → Services → Repositories → MySQL
 | Auditoría | **Implementada** |
 | QR / Firebase / Electron / Respaldo | **No existen** |
 
+## Requisitos
+
+- Node.js 20.19+
+- MySQL 8+
+- npm
+
 ## Instalación
 
 ### 1. Base de datos
 
-Instale MySQL 8+, cree usuario y base. Configure `backend/.env` desde `.env.example`.
+Configure `backend/.env` desde `.env.example` y ejecute migraciones/seeds.
 
 ```bash
 cd backend

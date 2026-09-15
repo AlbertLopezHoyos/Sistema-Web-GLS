@@ -210,6 +210,63 @@ describe('API integración', () => {
     assert.ok(res.body.errors?.remitente || res.body.errors?.remitente_nombres);
   });
 
+  test('último admin no puede cambiar rol a operaciones', async (t) => {
+    if (!dbReady) { t.skip('MySQL no disponible'); return; }
+    const res = await authRequest(app, 'put', '/api/usuarios/usr_001', adminCookie).send({
+      nombres: 'Carlos Mendoza Ríos',
+      rol: 'operaciones',
+      activo: true,
+    });
+    assert.equal(res.status, 409);
+    assert.match(res.body.message, /último administrador activo/i);
+
+    const getRes = await authRequest(app, 'get', '/api/usuarios/usr_001', adminCookie);
+    assert.equal(getRes.status, 200);
+    assert.equal(getRes.body.data.rol, 'admin');
+  });
+
+  test('último admin no puede cambiar rol a consulta', async (t) => {
+    if (!dbReady) { t.skip('MySQL no disponible'); return; }
+    const res = await authRequest(app, 'put', '/api/usuarios/usr_001', adminCookie).send({
+      nombres: 'Carlos Mendoza Ríos',
+      rol: 'consulta',
+      activo: true,
+    });
+    assert.equal(res.status, 409);
+
+    const getRes = await authRequest(app, 'get', '/api/usuarios/usr_001', adminCookie);
+    assert.equal(getRes.body.data.rol, 'admin');
+  });
+
+  test('con dos admins activos uno puede cambiar su rol', async (t) => {
+    if (!dbReady) { t.skip('MySQL no disponible'); return; }
+    const email = `admin2_${Date.now()}@test.local`;
+    const createRes = await authRequest(app, 'post', '/api/usuarios', adminCookie).send({
+      nombres: 'Admin Secundario Test',
+      email,
+      password: 'demo123',
+      rol: 'admin',
+    });
+    assert.equal(createRes.status, 201);
+
+    const res = await authRequest(app, 'put', '/api/usuarios/usr_001', adminCookie).send({
+      nombres: 'Carlos Mendoza Ríos',
+      rol: 'operaciones',
+      activo: true,
+    });
+    assert.equal(res.status, 200);
+    assert.equal(res.body.data.rol, 'operaciones');
+
+    const { cookie: admin2Cookie } = await loginAs(app, email);
+    const restore = await authRequest(app, 'put', '/api/usuarios/usr_001', admin2Cookie).send({
+      nombres: 'Carlos Mendoza Ríos',
+      rol: 'admin',
+      activo: true,
+    });
+    assert.equal(restore.status, 200);
+    assert.equal(restore.body.data.rol, 'admin');
+  });
+
   test('transacción createEnvio rollback sin datos parciales', async (t) => {
     if (!dbReady) { t.skip('MySQL no disponible'); return; }
     const [beforeEnvios] = await query('SELECT COUNT(*) AS total FROM envios');

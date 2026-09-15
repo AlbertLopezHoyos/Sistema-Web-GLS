@@ -4,7 +4,7 @@ Aplicación web React para el seguimiento y trazabilidad de envíos de Grupo Log
 
 ## Requisitos
 
-- Node.js 18+
+- Node.js 20.19+
 - npm
 - Backend API en ejecución (`http://localhost:3000/api`)
 

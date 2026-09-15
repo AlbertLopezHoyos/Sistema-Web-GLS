@@ -22,6 +22,7 @@ export const ClienteFormPage = () => {
   const { canMutate } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState(emptyForm);
+  const [initialForm, setInitialForm] = useState(emptyForm);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
@@ -32,7 +33,11 @@ export const ClienteFormPage = () => {
   useEffect(() => {
     if (isEdit) {
       clientesService.getClienteById(id).then((c) => {
-        if (c) setForm({ nombres: c.nombres, documento: c.documento, telefono: c.telefono, direccion: c.direccion, empresa: c.empresa || '' });
+        if (c) {
+          const datos = { nombres: c.nombres, documento: c.documento, telefono: c.telefono, direccion: c.direccion, empresa: c.empresa || '' };
+          setForm(datos);
+          setInitialForm(datos);
+        }
         setLoading(false);
       });
     }
@@ -45,6 +50,12 @@ export const ClienteFormPage = () => {
   const handleChange = (field, value) => {
     setForm((p) => ({ ...p, [field]: value }));
     setErrors((p) => ({ ...p, [field]: '' }));
+  };
+
+  const handleClear = () => {
+    setForm(isEdit ? initialForm : emptyForm);
+    setErrors({});
+    setSuccess('');
   };
 
   const handleSave = async () => {
@@ -90,7 +101,7 @@ export const ClienteFormPage = () => {
         {!readOnly && (
           <div className="form-actions">
             <Button type="button" variant="ghost" onClick={() => navigate(ROUTES.CLIENTES)}>Cancelar</Button>
-            <Button type="button" variant="secondary" onClick={() => setForm(emptyForm)}>Limpiar</Button>
+            <Button type="button" variant="secondary" onClick={handleClear}>Limpiar</Button>
             <Button type="submit" loading={saving}>Guardar</Button>
           </div>
         )}

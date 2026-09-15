@@ -21,6 +21,9 @@
     "react-router-dom": "^7.18.3",
     "xlsx": "^0.18.5"
   },
+  "engines": {
+    "node": ">=20.19.0"
+  },
   "devDependencies": {
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",
