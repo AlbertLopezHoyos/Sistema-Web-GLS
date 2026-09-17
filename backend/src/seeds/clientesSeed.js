@@ -1,4 +1,4 @@
-export const clientesMock = [
+export const clientesSeed = [
   {
     id: 'cli_20123456789',
     nombres: 'Distribuidora Andina S.A.C.',
@@ -6,8 +6,8 @@ export const clientesMock = [
     telefono: '01-4567890',
     direccion: 'Av. Industrial 450, Lima',
     empresa: 'Distribuidora Andina',
-    fechaAlta: '2025-01-15T10:00:00.000Z',
-    fechaActualizacion: '2025-03-10T12:00:00.000Z',
+    fechaAlta: '2026-06-05T10:00:00.000Z',
+    fechaActualizacion: '2026-07-10T12:00:00.000Z',
   },
   {
     id: 'cli_20987654321',
@@ -16,8 +16,8 @@ export const clientesMock = [
     telefono: '01-2345678',
     direccion: 'Jr. Comercio 120, Callao',
     empresa: 'Comercial Pacífico',
-    fechaAlta: '2025-01-20T11:00:00.000Z',
-    fechaActualizacion: '2025-04-05T09:00:00.000Z',
+    fechaAlta: '2026-06-10T11:00:00.000Z',
+    fechaActualizacion: '2026-08-05T09:00:00.000Z',
   },
   {
     id: 'cli_20456789123',
@@ -26,8 +26,8 @@ export const clientesMock = [
     telefono: '044-567890',
     direccion: 'Av. Grau 890, Trujillo',
     empresa: 'Importaciones del Norte',
-    fechaAlta: '2025-02-01T08:00:00.000Z',
-    fechaActualizacion: '2025-05-12T15:00:00.000Z',
+    fechaAlta: '2026-06-15T08:00:00.000Z',
+    fechaActualizacion: '2026-09-12T15:00:00.000Z',
   },
   {
     id: 'cli_45678901',
@@ -36,8 +36,8 @@ export const clientesMock = [
     telefono: '987654321',
     direccion: 'Calle Los Olivos 234, Arequipa',
     empresa: '',
-    fechaAlta: '2025-02-10T14:00:00.000Z',
-    fechaActualizacion: '2025-02-10T14:00:00.000Z',
+    fechaAlta: '2026-07-01T14:00:00.000Z',
+    fechaActualizacion: '2026-07-01T14:00:00.000Z',
   },
   {
     id: 'cli_20333444555',
@@ -46,8 +46,8 @@ export const clientesMock = [
     telefono: '01-9988776',
     direccion: 'Av. Javier Prado 1500, San Isidro',
     empresa: 'Logística Express',
-    fechaAlta: '2025-03-05T09:30:00.000Z',
-    fechaActualizacion: '2025-06-20T10:00:00.000Z',
+    fechaAlta: '2026-07-05T09:30:00.000Z',
+    fechaActualizacion: '2026-08-20T10:00:00.000Z',
   },
   {
     id: 'cli_56789012',
@@ -56,8 +56,8 @@ export const clientesMock = [
     telefono: '912345678',
     direccion: 'Urb. Las Flores Mz. B Lt. 5, Piura',
     empresa: '',
-    fechaAlta: '2025-03-15T16:00:00.000Z',
-    fechaActualizacion: '2025-03-15T16:00:00.000Z',
+    fechaAlta: '2026-07-15T16:00:00.000Z',
+    fechaActualizacion: '2026-07-15T16:00:00.000Z',
   },
   {
     id: 'cli_20555666777',
@@ -66,8 +66,8 @@ export const clientesMock = [
     telefono: '054-123456',
     direccion: 'Carretera Panamericana Km 12, Ica',
     empresa: 'Agroexportadora Sur',
-    fechaAlta: '2025-04-01T07:00:00.000Z',
-    fechaActualizacion: '2025-07-01T11:00:00.000Z',
+    fechaAlta: '2026-08-01T07:00:00.000Z',
+    fechaActualizacion: '2026-10-01T11:00:00.000Z',
   },
   {
     id: 'cli_67890123',
@@ -76,8 +76,8 @@ export const clientesMock = [
     telefono: '923456789',
     direccion: 'Av. La Marina 456, Lima',
     empresa: '',
-    fechaAlta: '2025-04-20T13:00:00.000Z',
-    fechaActualizacion: '2025-04-20T13:00:00.000Z',
+    fechaAlta: '2026-08-20T13:00:00.000Z',
+    fechaActualizacion: '2026-08-20T13:00:00.000Z',
   },
   {
     id: 'cli_20666777888',
@@ -86,8 +86,8 @@ export const clientesMock = [
     telefono: '01-4455667',
     direccion: 'Av. República de Panamá 3500, Lima',
     empresa: 'Tecnología Global',
-    fechaAlta: '2025-05-10T10:00:00.000Z',
-    fechaActualizacion: '2025-08-15T14:00:00.000Z',
+    fechaAlta: '2026-09-10T10:00:00.000Z',
+    fechaActualizacion: '2026-10-15T14:00:00.000Z',
   },
   {
     id: 'cli_78901234',
@@ -96,7 +96,7 @@ export const clientesMock = [
     telefono: '934567890',
     direccion: 'Calle Real 789, Cusco',
     empresa: '',
-    fechaAlta: '2025-06-01T11:00:00.000Z',
-    fechaActualizacion: '2025-06-01T11:00:00.000Z',
+    fechaAlta: '2026-10-01T11:00:00.000Z',
+    fechaActualizacion: '2026-10-01T11:00:00.000Z',
   },
 ];

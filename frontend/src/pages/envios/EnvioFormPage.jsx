@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { Download, Eye, Plus } from 'lucide-react';
 import { clientesService } from '../../services/clientesService';
 import { enviosService, validateEnvioForm } from '../../services/enviosService';
 import { PageHeader } from '../../components/common/PageHeader';
@@ -8,6 +9,8 @@ import { Select } from '../../components/common/Select';
 import { Button } from '../../components/common/Button';
 import { Alert } from '../../components/common/Alert';
 import { ConfirmModal } from '../../components/common/ConfirmModal';
+import { Card } from '../../components/common/Card';
+import { downloadComprobanteEnvio } from '../../utils/comprobanteEnvio';
 import { DIMENSION_UNITS, CURRENCIES, DEFAULT_TARIFF } from '../../constants/appConfig';
 import { calcularCotizacion } from '../../utils/cotizacionEnvio';
 import { ROUTES } from '../../constants/routes';
@@ -22,8 +25,9 @@ export const EnvioFormPage = () => {
   const [errors, setErrors] = useState({});
   const [tabError, setTabError] = useState('');
   const [saving, setSaving] = useState(false);
-  const [success, setSuccess] = useState('');
+  const [registeredEnvio, setRegisteredEnvio] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const [cotizacionPreview, setCotizacionPreview] = useState(null);
 
   const [form, setForm] = useState({
@@ -148,13 +152,29 @@ export const EnvioFormPage = () => {
     }
   };
 
+  const resetForm = () => {
+    setForm({
+      clienteDocumento: '',
+      remitente: { ...emptyParty },
+      destinatario: { ...emptyParty },
+      origen: '', destino: '', tipoCarga: '', descripcion: '',
+      peso: '', dimensiones: { largo: '', ancho: '', alto: '', unidadMedida: 'cm' },
+      cotizacion: { moneda: 'PEN', distanciaKm: '', seguroPorcentaje: 0, tarifaPorKg: DEFAULT_TARIFF.tarifaPorKg, tarifaPorM3: DEFAULT_TARIFF.tarifaPorM3, tarifaPorKm: DEFAULT_TARIFF.tarifaPorKm },
+      observacion: '',
+    });
+    setActiveTab(0);
+    setErrors({});
+    setTabError('');
+    setCotizacionPreview(null);
+    setRegisteredEnvio(null);
+  };
+
   const handleSave = async () => {
     setSaving(true);
     setErrors({});
     try {
       const envio = await enviosService.createEnvio(buildPayload());
-      setSuccess(`Envío ${envio.codigoEnvio} registrado correctamente`);
-      setTimeout(() => navigate(`${ROUTES.ENVIOS}/${envio.codigoEnvio}`), 1500);
+      setRegisteredEnvio(envio);
     } catch (err) {
       if (err.errors) setErrors(err.errors);
     } finally {
@@ -163,10 +183,40 @@ export const EnvioFormPage = () => {
     }
   };
 
+  const handleDownloadComprobante = async () => {
+    if (!registeredEnvio) return;
+    setDownloading(true);
+    try {
+      await downloadComprobanteEnvio(registeredEnvio);
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  if (registeredEnvio) {
+    return (
+      <div className="page">
+        <PageHeader title="Envío registrado" subtitle="El envío se guardó correctamente en el sistema" />
+        <Card title="Confirmación de registro">
+          <div className="envio-success">
+            <p className="envio-success-message">Envío registrado correctamente</p>
+            <p className="envio-success-code">{registeredEnvio.codigoEnvio}</p>
+            <div className="envio-success-actions">
+              <Button icon={Download} loading={downloading} onClick={handleDownloadComprobante}>Descargar comprobante</Button>
+              <Link to={`${ROUTES.ENVIOS}/${registeredEnvio.codigoEnvio}`}>
+                <Button variant="secondary" icon={Eye}>Ver envío</Button>
+              </Link>
+              <Button variant="ghost" icon={Plus} onClick={resetForm}>Registrar otro envío</Button>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="page">
       <PageHeader title="Registrar envío" subtitle="Complete los datos del nuevo envío" />
-      {success && <Alert type="success" message={success} />}
       {tabError && <Alert type="warning" message={tabError} onClose={() => setTabError('')} />}
       <div className="tabs">
         {tabs.map((t, i) => (

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Route, MapPin } from 'lucide-react';
+import { Route, MapPin, Download } from 'lucide-react';
+import { downloadComprobanteEnvio } from '../../utils/comprobanteEnvio';
 import { enviosService } from '../../services/enviosService';
 import { PageHeader } from '../../components/common/PageHeader';
 import { Card } from '../../components/common/Card';
@@ -23,6 +24,7 @@ export const EnvioDetallePage = () => {
   const { id } = useParams();
   const [envio, setEnvio] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     enviosService.getEnvioById(id).then((e) => { setEnvio(e); setLoading(false); });
@@ -37,6 +39,17 @@ export const EnvioDetallePage = () => {
         title={`Envío ${envio.codigoEnvio}`}
         actions={
           <>
+            <Button
+              variant="secondary"
+              icon={Download}
+              loading={downloading}
+              onClick={async () => {
+                setDownloading(true);
+                try { await downloadComprobanteEnvio(envio); } finally { setDownloading(false); }
+              }}
+            >
+              Descargar comprobante
+            </Button>
             <Link to={`/envios/${id}/trazabilidad`}><Button variant="secondary" icon={Route}>Trazabilidad</Button></Link>
             <Link to={`/geolocalizacion/${id}`}><Button variant="secondary" icon={MapPin}>Ubicación</Button></Link>
           </>

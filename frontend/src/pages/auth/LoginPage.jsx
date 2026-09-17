@@ -53,7 +53,7 @@ export const LoginPage = () => {
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
             <label htmlFor="email" className="form-label">Correo electrónico</label>
-            <input id="email" type="email" className="form-input" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="usuario@demo-gls.local" required autoComplete="email" />
+            <input id="email" type="email" className="form-input" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="correo@gls.local" required autoComplete="email" />
           </div>
           <div className="form-group">
             <label htmlFor="password" className="form-label">Contraseña</label>
@@ -72,15 +72,6 @@ export const LoginPage = () => {
             Iniciar sesión
           </Button>
         </form>
-        <div className="login-demo">
-          <p><strong>Usuarios demo:</strong></p>
-          <ul>
-            <li>admin@demo-gls.local</li>
-            <li>operaciones@demo-gls.local</li>
-            <li>consulta@demo-gls.local</li>
-          </ul>
-          <p>Contraseña: <code>demo123</code></p>
-        </div>
       </div>
     </div>
   );

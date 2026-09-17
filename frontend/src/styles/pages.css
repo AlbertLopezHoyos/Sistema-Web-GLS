@@ -22,8 +22,13 @@
 .login-demo code { background: #e2e8f0; padding: 0.1rem 0.4rem; border-radius: 4px; }
 
 .dashboard-grid {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-  gap: 1.5rem; margin-bottom: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.dashboard-page .stats-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 .activity-list { display: flex; flex-direction: column; gap: 0.75rem; }
 .activity-item { display: flex; gap: 0.75rem; align-items: flex-start; padding: 0.5rem 0; border-bottom: 1px solid #f1f5f9; }
@@ -65,6 +70,17 @@
   border-radius: var(--radius-sm);
 }
 
+.envio-success { text-align: center; padding: 1rem 0; }
+.envio-success-message { font-size: 1rem; color: var(--muted); margin-bottom: 0.5rem; }
+.envio-success-code {
+  font-size: 1.75rem; font-weight: 700; color: var(--brand);
+  margin-bottom: 1.5rem; letter-spacing: 0.02em;
+}
+.envio-success-actions {
+  display: flex; flex-wrap: wrap; gap: 0.75rem;
+  justify-content: center;
+}
+
 .sim-notice { text-align: center; padding: 1rem; color: var(--muted); }
 .sim-notice svg { color: var(--brand); margin-bottom: 1rem; }
 
@@ -78,6 +94,8 @@
   .page { padding: 1rem; }
   .trazabilidad-layout { grid-template-columns: 1fr; }
   .dashboard-grid { grid-template-columns: 1fr; }
+  .dashboard-page .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .form-grid { grid-template-columns: 1fr; }
   .detail-grid { grid-template-columns: 1fr; }
   .navbar-user-info { display: none; }

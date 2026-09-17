@@ -20,4 +20,9 @@ input, select, textarea { font-family: inherit; font-size: inherit; }
 .text-muted { color: var(--muted); }
 .required { color: var(--danger); }
 
-.page { padding: 1.5rem; max-width: 1400px; }
+.page {
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  padding: 1.5rem;
+}

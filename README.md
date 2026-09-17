@@ -20,7 +20,7 @@ Backend interno: `Routes → Controllers → Services → Repositories → MySQL
 | MySQL | **Implementado** (requiere instalación/configuración local) |
 | Autenticación | **Real** (JWT HttpOnly cookie) |
 | Persistencia | **MySQL** |
-| Datos mock runtime | **Eliminados** |
+| Datos semilla | **MySQL** (entorno local) |
 | Geolocalización | Puntos de control referenciales |
 | Reportes | **Implementados** |
 | Auditoría | **Implementada** |
@@ -65,13 +65,17 @@ npm run dev
 
 App: `http://localhost:5173`
 
-## Credenciales demo
+## Accesos iniciales (entorno local)
 
-| Rol | Correo | Contraseña |
-|---|---|---|
-| Administrador | admin@demo-gls.local | demo123 |
-| Operaciones | operaciones@demo-gls.local | demo123 |
-| Consulta | consulta@demo-gls.local | demo123 |
+Datos semilla sintéticos para desarrollo y presentación académica. No representan registros empresariales reales.
+
+| Rol | Nombre | Correo | Contraseña inicial |
+|---|---|---|---|
+| Administrador | Jorge Salazar | jorge.salazar@gls.local | Gls2026! |
+| Operaciones | Luis Mesia | luis.mesia@gls.local | Gls2026! |
+| Operaciones | Crosbin Salazar | crosbin.salazar@gls.local | Gls2026! |
+
+El rol **Consulta** permanece soportado por el sistema; las pruebas automatizadas utilizan un usuario exclusivo de test.
 
 ## Roles
 

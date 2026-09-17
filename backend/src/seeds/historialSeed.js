@@ -1,0 +1,42 @@
+const AREA_DEFAULT = 'Área de operaciones';
+
+const evt = (codigo, estado, fecha, obs, extra = {}) => ({
+  id: `${codigo}__${fecha}`,
+  codigoEnvio: codigo,
+  estado,
+  fechaActualizacion: fecha,
+  observacion: obs,
+  responsable: AREA_DEFAULT,
+  evidenciaReferencia: '',
+  evidenciaDetalle: '',
+  registradoPor: 'luis.mesia@gls.local',
+  ...extra,
+});
+
+export const historialSeed = [
+  evt('ENV-2026-0001', 'Registrado', '2026-06-05T08:30:00.000Z', 'Registro inicial del envío'),
+  evt('ENV-2026-0001', 'En almacén', '2026-06-05T14:00:00.000Z', 'Ingreso a almacén origen'),
+  evt('ENV-2026-0001', 'En tránsito', '2026-06-08T14:20:00.000Z', 'Salida hacia Callao', { registradoPor: 'crosbin.salazar@gls.local' }),
+  evt('ENV-2026-0002', 'Registrado', '2026-06-12T10:00:00.000Z', 'Registro inicial del envío'),
+  evt('ENV-2026-0002', 'En almacén', '2026-06-12T16:00:00.000Z', 'Almacenado en Trujillo'),
+  evt('ENV-2026-0002', 'En tránsito', '2026-06-13T08:00:00.000Z', 'En ruta hacia Arequipa', { registradoPor: 'crosbin.salazar@gls.local' }),
+  evt('ENV-2026-0002', 'En reparto', '2026-06-15T09:15:00.000Z', 'En reparto local Arequipa'),
+  evt('ENV-2026-0003', 'Registrado', '2026-06-02T07:00:00.000Z', 'Registro inicial del envío'),
+  evt('ENV-2026-0003', 'En almacén', '2026-06-02T12:00:00.000Z', 'Recepción en almacén'),
+  evt('ENV-2026-0003', 'En tránsito', '2026-06-03T06:00:00.000Z', 'Despacho a Piura', { registradoPor: 'crosbin.salazar@gls.local' }),
+  evt('ENV-2026-0003', 'En reparto', '2026-06-07T10:00:00.000Z', 'Reparto en Piura'),
+  evt('ENV-2026-0003', 'Entregado', '2026-06-07T16:45:00.000Z', 'Entrega conforme', { evidenciaReferencia: 'ACTA-001', receptorNombre: 'Rosa Delgado', receptorDocumento: '56789012' }),
+  evt('ENV-2026-0004', 'Registrado', '2026-07-08T06:00:00.000Z', 'Registro inicial del envío'),
+  evt('ENV-2026-0004', 'En almacén', '2026-07-08T12:00:00.000Z', 'Almacenado en Ica', { registradoPor: 'crosbin.salazar@gls.local' }),
+  evt('ENV-2026-0005', 'Registrado', '2026-07-15T11:30:00.000Z', 'Registro inicial del envío'),
+  evt('ENV-2026-0006', 'Registrado', '2026-06-18T09:00:00.000Z', 'Registro inicial del envío'),
+  evt('ENV-2026-0006', 'Observado', '2026-06-20T15:30:00.000Z', 'Embalaje dañado detectado en revisión', { registradoPor: 'crosbin.salazar@gls.local' }),
+  evt('ENV-2026-0007', 'Registrado', '2026-06-22T14:00:00.000Z', 'Registro inicial del envío'),
+  evt('ENV-2026-0007', 'Cancelado', '2026-06-23T10:00:00.000Z', 'Cancelado por solicitud del cliente'),
+  evt('ENV-2026-0008', 'Registrado', '2026-07-22T08:00:00.000Z', 'Registro inicial del envío'),
+  evt('ENV-2026-0008', 'En almacén', '2026-07-22T14:00:00.000Z', 'Ingreso almacén Lima', { registradoPor: 'crosbin.salazar@gls.local' }),
+  evt('ENV-2026-0008', 'En tránsito', '2026-07-25T07:30:00.000Z', 'En ruta a Trujillo'),
+  evt('ENV-2026-0011', 'Registrado', '2026-06-28T09:00:00.000Z', 'Registro inicial del envío'),
+  evt('ENV-2026-0011', 'En tránsito', '2026-06-29T08:00:00.000Z', 'Despacho Ica-Callao', { registradoPor: 'crosbin.salazar@gls.local' }),
+  evt('ENV-2026-0011', 'Entregado', '2026-07-05T11:00:00.000Z', 'Entrega en almacén destino', { evidenciaReferencia: 'ACTA-002', receptorNombre: 'Juan Pérez', receptorDocumento: '12345678' }),
+];

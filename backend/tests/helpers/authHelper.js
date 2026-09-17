@@ -1,6 +1,6 @@
 import request from 'supertest';
 
-export const loginAs = async (app, email, password = 'demo123') => {
+export const loginAs = async (app, email, password = 'Gls2026!') => {
   const res = await request(app)
     .post('/api/auth/login')
     .send({ email, password, remember: false });

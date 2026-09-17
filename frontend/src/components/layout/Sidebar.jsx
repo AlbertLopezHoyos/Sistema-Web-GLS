@@ -7,31 +7,45 @@ import { COMPANY_SHORT } from '../../constants/appConfig';
 import { STORAGE_KEYS } from '../../constants/appConfig';
 import { storage } from '../../utils/storage';
 
+const isEnvioDetailPath = (path) => /^\/envios\/ENV-/.test(path);
+
+const isChildActive = (child, pathname) => {
+  if (child.id === 'envio-nuevo') return pathname === '/envios/nuevo';
+  if (child.id === 'envio-consulta') return pathname === '/envios' || isEnvioDetailPath(pathname);
+  if (child.id === 'historial') return pathname === '/historial';
+  return pathname === child.to || pathname.startsWith(`${child.to}/`);
+};
+
 export const Sidebar = ({ mobileOpen, onMobileClose }) => {
   const { user } = useAuth();
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(() => storage.get(STORAGE_KEYS.SIDEBAR, false));
-  const [expanded, setExpanded] = useState({ envios: true, admin: true });
+  const [expanded, setExpanded] = useState({ envios: true });
 
   useEffect(() => {
     storage.set(STORAGE_KEYS.SIDEBAR, collapsed);
   }, [collapsed]);
 
+  useEffect(() => {
+    if (location.pathname.startsWith('/envios') || location.pathname === '/historial') {
+      setExpanded((p) => ({ ...p, envios: true }));
+    }
+  }, [location.pathname]);
+
   const filterByRole = (items) =>
     items.filter((item) => item.roles.includes(user?.rol));
-
-  const isActive = (to) => location.pathname === to || location.pathname.startsWith(to + '/');
 
   const renderItem = (item) => {
     if (item.children) {
       const visibleChildren = filterByRole(item.children);
       if (!visibleChildren.length) return null;
       const open = expanded[item.id];
+      const hasActiveChild = visibleChildren.some((c) => isChildActive(c, location.pathname));
       return (
         <div key={item.id} className="sidebar-group">
           <button
             type="button"
-            className={`sidebar-link sidebar-group-toggle ${visibleChildren.some((c) => isActive(c.to)) ? 'active' : ''}`}
+            className={`sidebar-link sidebar-group-toggle ${hasActiveChild ? 'sidebar-group-open' : ''}`}
             onClick={() => setExpanded((p) => ({ ...p, [item.id]: !p[item.id] }))}
           >
             <item.icon size={20} />
@@ -48,7 +62,10 @@ export const Sidebar = ({ mobileOpen, onMobileClose }) => {
                 <NavLink
                   key={child.id}
                   to={child.to}
-                  className={({ isActive: active }) => `sidebar-link sidebar-sub-link ${active ? 'active' : ''}`}
+                  end={child.id === 'envio-consulta'}
+                  className={() =>
+                    `sidebar-link sidebar-sub-link ${isChildActive(child, location.pathname) ? 'active' : ''}`
+                  }
                   onClick={onMobileClose}
                 >
                   <child.icon size={16} />

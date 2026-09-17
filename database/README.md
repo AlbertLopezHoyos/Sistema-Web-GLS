@@ -44,7 +44,7 @@ npm run db:migrate
 npm run db:seed
 ```
 
-Los datos demo se cargan desde `backend/src/seeds/` (independiente del frontend).
+Los datos semilla iniciales se cargan desde `backend/src/seeds/` (independiente del frontend).
 
 ## Diagrama
 

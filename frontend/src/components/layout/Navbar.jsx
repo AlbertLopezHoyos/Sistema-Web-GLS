@@ -61,6 +61,7 @@ export const Navbar = ({ onMenuToggle, breadcrumbs = [], title }) => {
             {isAdmin && (
               <>
                 <div className="navbar-dropdown-divider" />
+                <div className="navbar-dropdown-heading">Administración</div>
                 <Link to={ROUTES.USUARIOS} className="navbar-dropdown-item" onClick={() => setMenuOpen(false)}>
                   <UserCog size={16} /> Usuarios
                 </Link>

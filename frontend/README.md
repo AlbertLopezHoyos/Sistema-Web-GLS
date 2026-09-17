@@ -121,6 +121,11 @@ AuthContext → GET /api/auth/me → backend valida cookie
 
 Solo se usa `localStorage` para preferencias de interfaz (por ejemplo, sidebar contraído). No se persisten datos empresariales en el navegador.
 
-## Credenciales demo
+## Accesos iniciales
 
-Ver README principal del repositorio.
+Ver README principal del repositorio (entorno local).
+
+## Comprobantes y exportaciones
+
+- Comprobante PDF de envío desde registro y detalle (`comprobante-ENV-AAAA-NNNN.pdf`)
+- Reportes PDF (jspdf-autotable) y Excel (ExcelJS) con identidad corporativa

@@ -5,6 +5,7 @@ import { dropDatabase } from '../../src/scripts/reset.js';
 import { runMigrations } from '../../src/scripts/migrate.js';
 import { runSeeds } from '../../src/scripts/seed.js';
 import { closePool, recreatePool } from '../../src/config/db.js';
+import { seedTestConsultaUser } from './testUsers.js';
 
 export const isMySQLServerAvailable = async () => {
   let conn;
@@ -31,6 +32,7 @@ export const prepareTestDb = async () => {
   await runMigrations(getTestDbName());
   recreatePool();
   await runSeeds();
+  await seedTestConsultaUser();
 };
 
 export const prepareTestDbOnce = async () => {

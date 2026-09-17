@@ -3,12 +3,12 @@ import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
 import env from '../config/env.js';
 import { query, getConnection } from '../config/db.js';
-import { usuariosMock, DEMO_PASSWORD } from '../seeds/usuariosMock.js';
-import { clientesMock } from '../seeds/clientesMock.js';
-import { enviosMock } from '../seeds/enviosMock.js';
-import { historialMock } from '../seeds/historialMock.js';
-import { ubicacionesMock } from '../seeds/ubicacionesMock.js';
-import { auditoriaMock } from '../seeds/auditoriaMock.js';
+import { usuariosSeed, INITIAL_PASSWORD } from '../seeds/usuariosSeed.js';
+import { clientesSeed } from '../seeds/clientesSeed.js';
+import { enviosSeed, COUNTER_INITIAL } from '../seeds/enviosSeed.js';
+import { historialSeed } from '../seeds/historialSeed.js';
+import { ubicacionesSeed } from '../seeds/ubicacionesSeed.js';
+import { auditoriaSeed } from '../seeds/auditoriaSeed.js';
 
 const getEstadoId = async (nombre) => {
   const [rows] = await query('SELECT id FROM estados_envio WHERE nombre = ? LIMIT 1', [nombre]);
@@ -21,9 +21,9 @@ const getRolId = async (codigo) => {
 };
 
 const seedUsuarios = async () => {
-  for (const u of usuariosMock) {
+  for (const u of usuariosSeed) {
     const rolId = await getRolId(u.rol);
-    const hash = await bcrypt.hash(DEMO_PASSWORD, env.bcryptRounds);
+    const hash = await bcrypt.hash(INITIAL_PASSWORD, env.bcryptRounds);
     await query(
       `INSERT INTO usuarios (id, email, nombres, rol_id, activo, password_hash, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -31,11 +31,11 @@ const seedUsuarios = async () => {
       [u.id, u.email, u.nombres, rolId, u.activo ? 1 : 0, hash, new Date(u.createdAt), new Date(u.updatedAt)]
     );
   }
-  console.log(`✓ ${usuariosMock.length} usuarios`);
+  console.log(`✓ ${usuariosSeed.length} usuarios`);
 };
 
 const seedClientes = async () => {
-  for (const c of clientesMock) {
+  for (const c of clientesSeed) {
     await query(
       `INSERT INTO clientes (id, nombres, documento, telefono, direccion, empresa, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -43,16 +43,19 @@ const seedClientes = async () => {
       [c.id, c.nombres, c.documento, c.telefono, c.direccion, c.empresa || '', new Date(c.fechaAlta), new Date(c.fechaActualizacion)]
     );
   }
-  console.log(`✓ ${clientesMock.length} clientes`);
+  console.log(`✓ ${clientesSeed.length} clientes`);
 };
 
 const seedEnvios = async () => {
   const conn = await getConnection();
   try {
     await conn.beginTransaction();
-    await conn.execute('INSERT INTO secuencias_envio (anio, contador) VALUES (2026, 20) ON DUPLICATE KEY UPDATE contador = GREATEST(contador, 20)');
+    await conn.execute(
+      'INSERT INTO secuencias_envio (anio, contador) VALUES (?, ?) ON DUPLICATE KEY UPDATE contador = GREATEST(contador, ?)',
+      [COUNTER_INITIAL.year, COUNTER_INITIAL.current, COUNTER_INITIAL.current]
+    );
 
-    for (const e of enviosMock) {
+    for (const e of enviosSeed) {
       const estadoId = await getEstadoId(e.estadoActual);
       const ca = e.clienteAsociado;
 
@@ -105,7 +108,7 @@ const seedEnvios = async () => {
       }
     }
     await conn.commit();
-    console.log(`✓ ${enviosMock.length} envíos`);
+    console.log(`✓ ${enviosSeed.length} envíos`);
   } catch (err) {
     await conn.rollback();
     throw err;
@@ -115,7 +118,7 @@ const seedEnvios = async () => {
 };
 
 const seedHistorial = async () => {
-  for (const h of historialMock) {
+  for (const h of historialSeed) {
     const [envioRows] = await query('SELECT id FROM envios WHERE codigo_envio = ? LIMIT 1', [h.codigoEnvio]);
     if (!envioRows[0]) continue;
     const estadoId = await getEstadoId(h.estado);
@@ -132,11 +135,11 @@ const seedHistorial = async () => {
       ]
     );
   }
-  console.log(`✓ ${historialMock.length} eventos historial`);
+  console.log(`✓ ${historialSeed.length} eventos historial`);
 };
 
 const seedUbicaciones = async () => {
-  for (const u of ubicacionesMock) {
+  for (const u of ubicacionesSeed) {
     const [envioRows] = await query('SELECT id FROM envios WHERE codigo_envio = ? LIMIT 1', [u.codigoEnvio]);
     if (!envioRows[0]) continue;
     await query(
@@ -150,11 +153,11 @@ const seedUbicaciones = async () => {
       ]
     );
   }
-  console.log(`✓ ${ubicacionesMock.length} ubicaciones`);
+  console.log(`✓ ${ubicacionesSeed.length} ubicaciones`);
 };
 
 const seedAuditoria = async () => {
-  for (const a of auditoriaMock) {
+  for (const a of auditoriaSeed) {
     const [userRows] = await query('SELECT id FROM usuarios WHERE email = ? LIMIT 1', [a.usuario]);
     await query(
       `INSERT INTO auditoria (id, usuario_id, usuario_email, rol, accion, modulo, descripcion, fecha)
@@ -163,11 +166,11 @@ const seedAuditoria = async () => {
       [a.id, userRows[0]?.id || null, a.usuario, a.rol, a.accion, a.modulo, a.descripcion, new Date(a.fecha)]
     );
   }
-  console.log(`✓ ${auditoriaMock.length} eventos auditoría`);
+  console.log(`✓ ${auditoriaSeed.length} eventos auditoría`);
 };
 
 export const runSeeds = async () => {
-  console.log('Sembrando datos demo...');
+  console.log('Sembrando datos iniciales...');
   await seedUsuarios();
   await seedClientes();
   await seedEnvios();

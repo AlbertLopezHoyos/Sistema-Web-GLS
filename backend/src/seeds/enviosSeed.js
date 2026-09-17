@@ -7,14 +7,14 @@ const baseEnvio = (codigo, data) => ({
   ...data,
 });
 
-export const enviosMock = [
+export const enviosSeed = [
   baseEnvio('ENV-2026-0001', {
     remitente: { nombres: 'Distribuidora Andina S.A.C.', documento: '20123456789', telefono: '01-4567890', direccion: 'Av. Industrial 450, Lima' },
     destinatario: { nombres: 'Comercial Pacífico E.I.R.L.', documento: '20987654321', telefono: '01-2345678', direccion: 'Jr. Comercio 120, Callao' },
     origen: 'Lima', destino: 'Callao', tipoCarga: 'Mercadería general', descripcion: 'Cajas de productos varios',
     peso: 45.5, dimensiones: { largo: 80, ancho: 60, alto: 50, unidadMedida: 'cm' },
     clienteAsociado: { clienteId: 'cli_20123456789', documento: '20123456789', nombres: 'Distribuidora Andina S.A.C.', telefono: '01-4567890', direccion: 'Av. Industrial 450, Lima', empresa: 'Distribuidora Andina' },
-    estadoActual: 'En tránsito', fechaRegistro: '2026-01-05T08:30:00.000Z', fechaUltimaActualizacion: '2026-01-08T14:20:00.000Z',
+    estadoActual: 'En tránsito', fechaRegistro: '2026-06-05T08:30:00.000Z', fechaUltimaActualizacion: '2026-06-08T14:20:00.000Z',
   }),
   baseEnvio('ENV-2026-0002', {
     remitente: { nombres: 'Importaciones del Norte S.A.', documento: '20456789123', telefono: '044-567890', direccion: 'Av. Grau 890, Trujillo' },
@@ -22,7 +22,7 @@ export const enviosMock = [
     origen: 'Trujillo', destino: 'Arequipa', tipoCarga: 'Electrodomésticos', descripcion: 'Refrigeradora y lavadora',
     peso: 120, dimensiones: { largo: 180, ancho: 90, alto: 100, unidadMedida: 'cm' },
     clienteAsociado: { clienteId: 'cli_20456789123', documento: '20456789123', nombres: 'Importaciones del Norte S.A.', telefono: '044-567890', direccion: 'Av. Grau 890, Trujillo', empresa: 'Importaciones del Norte' },
-    estadoActual: 'En reparto', fechaRegistro: '2026-01-06T10:00:00.000Z', fechaUltimaActualizacion: '2026-01-09T09:15:00.000Z',
+    estadoActual: 'En reparto', fechaRegistro: '2026-06-12T10:00:00.000Z', fechaUltimaActualizacion: '2026-06-15T09:15:00.000Z',
   }),
   baseEnvio('ENV-2026-0003', {
     remitente: { nombres: 'Logística Express Perú S.A.C.', documento: '20333444555', telefono: '01-9988776', direccion: 'Av. Javier Prado 1500, San Isidro' },
@@ -30,8 +30,8 @@ export const enviosMock = [
     origen: 'Lima', destino: 'Piura', tipoCarga: 'Documentos y paquetería', descripcion: 'Documentos legales y paquetes pequeños',
     peso: 8.2, dimensiones: { largo: 40, ancho: 30, alto: 25, unidadMedida: 'cm' },
     clienteAsociado: { clienteId: 'cli_20333444555', documento: '20333444555', nombres: 'Logística Express Perú S.A.C.', telefono: '01-9988776', direccion: 'Av. Javier Prado 1500, San Isidro', empresa: 'Logística Express' },
-    estadoActual: 'Entregado', fechaRegistro: '2026-01-02T07:00:00.000Z', fechaUltimaActualizacion: '2026-01-07T16:45:00.000Z',
-    evidenciaEntrega: { referencia: 'ACTA-001', detalle: 'Entrega conforme en oficina', receptorNombre: 'Rosa Delgado', receptorDocumento: '56789012', fecha: '2026-01-07T16:45:00.000Z', registradoPor: 'operaciones@demo-gls.local' },
+    estadoActual: 'Entregado', fechaRegistro: '2026-06-02T07:00:00.000Z', fechaUltimaActualizacion: '2026-06-07T16:45:00.000Z',
+    evidenciaEntrega: { referencia: 'ACTA-001', detalle: 'Entrega conforme en oficina', receptorNombre: 'Rosa Delgado', receptorDocumento: '56789012', fecha: '2026-06-07T16:45:00.000Z', registradoPor: 'luis.mesia@gls.local' },
   }),
   baseEnvio('ENV-2026-0004', {
     remitente: { nombres: 'Agroexportadora Sur S.A.C.', documento: '20555666777', telefono: '054-123456', direccion: 'Carretera Panamericana Km 12, Ica' },
@@ -39,14 +39,14 @@ export const enviosMock = [
     origen: 'Ica', destino: 'Lima', tipoCarga: 'Productos agrícolas', descripcion: 'Arándanos frescos en cajas refrigeradas',
     peso: 200, dimensiones: { largo: 120, ancho: 80, alto: 80, unidadMedida: 'cm' },
     clienteAsociado: { clienteId: 'cli_20555666777', documento: '20555666777', nombres: 'Agroexportadora Sur S.A.C.', telefono: '054-123456', direccion: 'Carretera Panamericana Km 12, Ica', empresa: 'Agroexportadora Sur' },
-    estadoActual: 'En almacén', fechaRegistro: '2026-01-08T06:00:00.000Z', fechaUltimaActualizacion: '2026-01-08T12:00:00.000Z',
+    estadoActual: 'En almacén', fechaRegistro: '2026-07-08T06:00:00.000Z', fechaUltimaActualizacion: '2026-07-08T12:00:00.000Z',
   }),
   baseEnvio('ENV-2026-0005', {
     remitente: { nombres: 'Fernando Castillo Ruiz', documento: '67890123', telefono: '923456789', direccion: 'Av. La Marina 456, Lima' },
     destinatario: { nombres: 'Carmen Lucía Torres Mendoza', documento: '78901234', telefono: '934567890', direccion: 'Calle Real 789, Cusco' },
     origen: 'Lima', destino: 'Cusco', tipoCarga: 'Muebles', descripcion: 'Escritorio y silla de oficina',
     peso: 65, dimensiones: { largo: 150, ancho: 70, alto: 90, unidadMedida: 'cm' },
-    estadoActual: 'Registrado', fechaRegistro: '2026-01-09T11:30:00.000Z', fechaUltimaActualizacion: '2026-01-09T11:30:00.000Z',
+    estadoActual: 'Registrado', fechaRegistro: '2026-07-15T11:30:00.000Z', fechaUltimaActualizacion: '2026-07-15T11:30:00.000Z',
   }),
   baseEnvio('ENV-2026-0006', {
     remitente: { nombres: 'Distribuidora Andina S.A.C.', documento: '20123456789', telefono: '01-4567890', direccion: 'Av. Industrial 450, Lima' },
@@ -54,7 +54,7 @@ export const enviosMock = [
     origen: 'Lima', destino: 'Lima', tipoCarga: 'Repuestos', descripcion: 'Repuestos automotrices',
     peso: 25, dimensiones: { largo: 60, ancho: 40, alto: 30, unidadMedida: 'cm' },
     clienteAsociado: { clienteId: 'cli_20123456789', documento: '20123456789', nombres: 'Distribuidora Andina S.A.C.', telefono: '01-4567890', direccion: 'Av. Industrial 450, Lima', empresa: 'Distribuidora Andina' },
-    estadoActual: 'Observado', observacion: 'Embalaje dañado en revisión', fechaRegistro: '2026-01-04T09:00:00.000Z', fechaUltimaActualizacion: '2026-01-06T15:30:00.000Z',
+    estadoActual: 'Observado', observacion: 'Embalaje dañado en revisión', fechaRegistro: '2026-06-18T09:00:00.000Z', fechaUltimaActualizacion: '2026-06-20T15:30:00.000Z',
   }),
   baseEnvio('ENV-2026-0007', {
     remitente: { nombres: 'Comercial Pacífico E.I.R.L.', documento: '20987654321', telefono: '01-2345678', direccion: 'Jr. Comercio 120, Callao' },
@@ -62,7 +62,7 @@ export const enviosMock = [
     origen: 'Callao', destino: 'Ica', tipoCarga: 'Insumos', descripcion: 'Insumos de empaque',
     peso: 35, dimensiones: { largo: 100, ancho: 50, alto: 40, unidadMedida: 'cm' },
     clienteAsociado: { clienteId: 'cli_20987654321', documento: '20987654321', nombres: 'Comercial Pacífico E.I.R.L.', telefono: '01-2345678', direccion: 'Jr. Comercio 120, Callao', empresa: 'Comercial Pacífico' },
-    estadoActual: 'Cancelado', observacion: 'Cancelado por solicitud del cliente', fechaRegistro: '2026-01-03T14:00:00.000Z', fechaUltimaActualizacion: '2026-01-04T10:00:00.000Z',
+    estadoActual: 'Cancelado', observacion: 'Cancelado por solicitud del cliente', fechaRegistro: '2026-06-22T14:00:00.000Z', fechaUltimaActualizacion: '2026-06-23T10:00:00.000Z',
   }),
   baseEnvio('ENV-2026-0008', {
     remitente: { nombres: 'Tecnología Global S.A.C.', documento: '20666777888', telefono: '01-4455667', direccion: 'Av. República de Panamá 3500, Lima' },
@@ -70,21 +70,21 @@ export const enviosMock = [
     origen: 'Lima', destino: 'Trujillo', tipoCarga: 'Equipos informáticos', descripcion: 'Servidores y switches de red',
     peso: 85, dimensiones: { largo: 100, ancho: 80, alto: 60, unidadMedida: 'cm' },
     clienteAsociado: { clienteId: 'cli_20666777888', documento: '20666777888', nombres: 'Tecnología Global S.A.C.', telefono: '01-4455667', direccion: 'Av. República de Panamá 3500, Lima', empresa: 'Tecnología Global' },
-    estadoActual: 'En tránsito', fechaRegistro: '2026-01-07T08:00:00.000Z', fechaUltimaActualizacion: '2026-01-09T07:30:00.000Z',
+    estadoActual: 'En tránsito', fechaRegistro: '2026-07-22T08:00:00.000Z', fechaUltimaActualizacion: '2026-07-25T07:30:00.000Z',
   }),
   baseEnvio('ENV-2026-0009', {
     remitente: { nombres: 'Pedro Antonio Sánchez López', documento: '45678901', telefono: '987654321', direccion: 'Calle Los Olivos 234, Arequipa' },
     destinatario: { nombres: 'Logística Express Perú S.A.C.', documento: '20333444555', telefono: '01-9988776', direccion: 'Av. Javier Prado 1500, San Isidro' },
     origen: 'Arequipa', destino: 'Lima', tipoCarga: 'Artesanías', descripcion: 'Productos artesanales regionales',
     peso: 15, dimensiones: { largo: 50, ancho: 40, alto: 35, unidadMedida: 'cm' },
-    estadoActual: 'En almacén', fechaRegistro: '2026-01-08T15:00:00.000Z', fechaUltimaActualizacion: '2026-01-09T08:00:00.000Z',
+    estadoActual: 'En almacén', fechaRegistro: '2026-08-05T15:00:00.000Z', fechaUltimaActualizacion: '2026-08-06T08:00:00.000Z',
   }),
   baseEnvio('ENV-2026-0010', {
     remitente: { nombres: 'Rosa María Delgado Vega', documento: '56789012', telefono: '912345678', direccion: 'Urb. Las Flores Mz. B Lt. 5, Piura' },
     destinatario: { nombres: 'Distribuidora Andina S.A.C.', documento: '20123456789', telefono: '01-4567890', direccion: 'Av. Industrial 450, Lima' },
     origen: 'Piura', destino: 'Lima', tipoCarga: 'Textiles', descripcion: 'Prendas de algodón',
     peso: 42, dimensiones: { largo: 70, ancho: 50, alto: 45, unidadMedida: 'cm' },
-    estadoActual: 'En reparto', fechaRegistro: '2026-01-06T12:00:00.000Z', fechaUltimaActualizacion: '2026-01-09T10:00:00.000Z',
+    estadoActual: 'En reparto', fechaRegistro: '2026-08-12T12:00:00.000Z', fechaUltimaActualizacion: '2026-08-15T10:00:00.000Z',
   }),
   baseEnvio('ENV-2026-0011', {
     remitente: { nombres: 'Agroexportadora Sur S.A.C.', documento: '20555666777', telefono: '054-123456', direccion: 'Carretera Panamericana Km 12, Ica' },
@@ -92,15 +92,15 @@ export const enviosMock = [
     origen: 'Ica', destino: 'Callao', tipoCarga: 'Alimentos', descripcion: 'Productos procesados',
     peso: 55, dimensiones: { largo: 90, ancho: 60, alto: 55, unidadMedida: 'cm' },
     clienteAsociado: { clienteId: 'cli_20555666777', documento: '20555666777', nombres: 'Agroexportadora Sur S.A.C.', telefono: '054-123456', direccion: 'Carretera Panamericana Km 12, Ica', empresa: 'Agroexportadora Sur' },
-    estadoActual: 'Entregado', fechaRegistro: '2025-12-28T09:00:00.000Z', fechaUltimaActualizacion: '2026-01-02T11:00:00.000Z',
-    evidenciaEntrega: { referencia: 'ACTA-002', detalle: 'Recibido en almacén destino', receptorNombre: 'Juan Pérez', receptorDocumento: '12345678', fecha: '2026-01-02T11:00:00.000Z', registradoPor: 'operaciones@demo-gls.local' },
+    estadoActual: 'Entregado', fechaRegistro: '2026-06-28T09:00:00.000Z', fechaUltimaActualizacion: '2026-07-05T11:00:00.000Z',
+    evidenciaEntrega: { referencia: 'ACTA-002', detalle: 'Recibido en almacén destino', receptorNombre: 'Juan Pérez', receptorDocumento: '12345678', fecha: '2026-07-05T11:00:00.000Z', registradoPor: 'crosbin.salazar@gls.local' },
   }),
   baseEnvio('ENV-2026-0012', {
     remitente: { nombres: 'Carmen Lucía Torres Mendoza', documento: '78901234', telefono: '934567890', direccion: 'Calle Real 789, Cusco' },
     destinatario: { nombres: 'Pedro Antonio Sánchez López', documento: '45678901', telefono: '987654321', direccion: 'Calle Los Olivos 234, Arequipa' },
     origen: 'Cusco', destino: 'Arequipa', tipoCarga: 'Libros', descripcion: 'Material educativo',
     peso: 18, dimensiones: { largo: 45, ancho: 35, alto: 30, unidadMedida: 'cm' },
-    estadoActual: 'Registrado', fechaRegistro: '2026-01-09T16:00:00.000Z', fechaUltimaActualizacion: '2026-01-09T16:00:00.000Z',
+    estadoActual: 'Registrado', fechaRegistro: '2026-08-20T16:00:00.000Z', fechaUltimaActualizacion: '2026-08-20T16:00:00.000Z',
   }),
   baseEnvio('ENV-2026-0013', {
     remitente: { nombres: 'Logística Express Perú S.A.C.', documento: '20333444555', telefono: '01-9988776', direccion: 'Av. Javier Prado 1500, San Isidro' },
@@ -108,7 +108,7 @@ export const enviosMock = [
     origen: 'Lima', destino: 'Ica', tipoCarga: 'Maquinaria ligera', descripcion: 'Herramientas industriales',
     peso: 95, dimensiones: { largo: 110, ancho: 70, alto: 65, unidadMedida: 'cm' },
     clienteAsociado: { clienteId: 'cli_20333444555', documento: '20333444555', nombres: 'Logística Express Perú S.A.C.', telefono: '01-9988776', direccion: 'Av. Javier Prado 1500, San Isidro', empresa: 'Logística Express' },
-    estadoActual: 'En tránsito', fechaRegistro: '2026-01-07T13:00:00.000Z', fechaUltimaActualizacion: '2026-01-08T18:00:00.000Z',
+    estadoActual: 'En tránsito', fechaRegistro: '2026-09-05T13:00:00.000Z', fechaUltimaActualizacion: '2026-09-08T18:00:00.000Z',
   }),
   baseEnvio('ENV-2026-0014', {
     remitente: { nombres: 'Importaciones del Norte S.A.', documento: '20456789123', telefono: '044-567890', direccion: 'Av. Grau 890, Trujillo' },
@@ -116,15 +116,15 @@ export const enviosMock = [
     origen: 'Trujillo', destino: 'Piura', tipoCarga: 'Electrónica', descripcion: 'Componentes electrónicos',
     peso: 12, dimensiones: { largo: 35, ancho: 25, alto: 20, unidadMedida: 'cm' },
     clienteAsociado: { clienteId: 'cli_20456789123', documento: '20456789123', nombres: 'Importaciones del Norte S.A.', telefono: '044-567890', direccion: 'Av. Grau 890, Trujillo', empresa: 'Importaciones del Norte' },
-    estadoActual: 'En almacén', fechaRegistro: '2026-01-08T10:00:00.000Z', fechaUltimaActualizacion: '2026-01-09T06:00:00.000Z',
+    estadoActual: 'En almacén', fechaRegistro: '2026-09-12T10:00:00.000Z', fechaUltimaActualizacion: '2026-09-15T06:00:00.000Z',
   }),
   baseEnvio('ENV-2026-0015', {
     remitente: { nombres: 'Fernando Castillo Ruiz', documento: '67890123', telefono: '923456789', direccion: 'Av. La Marina 456, Lima' },
     destinatario: { nombres: 'Tecnología Global S.A.C.', documento: '20666777888', telefono: '01-4455667', direccion: 'Av. República de Panamá 3500, Lima' },
     origen: 'Lima', destino: 'Lima', tipoCarga: 'Equipos de cómputo', descripcion: 'Laptops corporativas',
     peso: 22, dimensiones: { largo: 55, ancho: 40, alto: 25, unidadMedida: 'cm' },
-    estadoActual: 'Entregado', fechaRegistro: '2025-12-30T08:00:00.000Z', fechaUltimaActualizacion: '2026-01-03T14:30:00.000Z',
-    evidenciaEntrega: { referencia: 'ACTA-003', detalle: 'Entrega en recepción', receptorNombre: 'Ana García', receptorDocumento: '87654321', fecha: '2026-01-03T14:30:00.000Z', registradoPor: 'operaciones@demo-gls.local' },
+    estadoActual: 'Entregado', fechaRegistro: '2026-06-25T08:00:00.000Z', fechaUltimaActualizacion: '2026-07-02T14:30:00.000Z',
+    evidenciaEntrega: { referencia: 'ACTA-003', detalle: 'Entrega en recepción', receptorNombre: 'Ana García', receptorDocumento: '87654321', fecha: '2026-07-02T14:30:00.000Z', registradoPor: 'luis.mesia@gls.local' },
   }),
   baseEnvio('ENV-2026-0016', {
     remitente: { nombres: 'Distribuidora Andina S.A.C.', documento: '20123456789', telefono: '01-4567890', direccion: 'Av. Industrial 450, Lima' },
@@ -132,7 +132,7 @@ export const enviosMock = [
     origen: 'Lima', destino: 'Cusco', tipoCarga: 'Medicamentos', descripcion: 'Medicamentos no controlados',
     peso: 5.5, dimensiones: { largo: 30, ancho: 25, alto: 20, unidadMedida: 'cm' },
     clienteAsociado: { clienteId: 'cli_20123456789', documento: '20123456789', nombres: 'Distribuidora Andina S.A.C.', telefono: '01-4567890', direccion: 'Av. Industrial 450, Lima', empresa: 'Distribuidora Andina' },
-    estadoActual: 'En reparto', fechaRegistro: '2026-01-07T07:00:00.000Z', fechaUltimaActualizacion: '2026-01-09T11:00:00.000Z',
+    estadoActual: 'En reparto', fechaRegistro: '2026-10-05T07:00:00.000Z', fechaUltimaActualizacion: '2026-10-08T11:00:00.000Z',
   }),
   baseEnvio('ENV-2026-0017', {
     remitente: { nombres: 'Comercial Pacífico E.I.R.L.', documento: '20987654321', telefono: '01-2345678', direccion: 'Jr. Comercio 120, Callao' },
@@ -140,7 +140,7 @@ export const enviosMock = [
     origen: 'Callao', destino: 'Lima', tipoCarga: 'Químicos', descripcion: 'Productos químicos industriales',
     peso: 75, dimensiones: { largo: 80, ancho: 60, alto: 55, unidadMedida: 'cm' },
     clienteAsociado: { clienteId: 'cli_20987654321', documento: '20987654321', nombres: 'Comercial Pacífico E.I.R.L.', telefono: '01-2345678', direccion: 'Jr. Comercio 120, Callao', empresa: 'Comercial Pacífico' },
-    estadoActual: 'Observado', observacion: 'Documentación incompleta', fechaRegistro: '2026-01-05T11:00:00.000Z', fechaUltimaActualizacion: '2026-01-07T09:00:00.000Z',
+    estadoActual: 'Observado', observacion: 'Documentación incompleta', fechaRegistro: '2026-10-12T11:00:00.000Z', fechaUltimaActualizacion: '2026-10-14T09:00:00.000Z',
   }),
   baseEnvio('ENV-2026-0018', {
     remitente: { nombres: 'Tecnología Global S.A.C.', documento: '20666777888', telefono: '01-4455667', direccion: 'Av. República de Panamá 3500, Lima' },
@@ -148,7 +148,7 @@ export const enviosMock = [
     origen: 'Lima', destino: 'Lima', tipoCarga: 'Periféricos', descripcion: 'Monitores y teclados',
     peso: 30, dimensiones: { largo: 65, ancho: 45, alto: 35, unidadMedida: 'cm' },
     clienteAsociado: { clienteId: 'cli_20666777888', documento: '20666777888', nombres: 'Tecnología Global S.A.C.', telefono: '01-4455667', direccion: 'Av. República de Panamá 3500, Lima', empresa: 'Tecnología Global' },
-    estadoActual: 'Registrado', fechaRegistro: '2026-01-09T09:00:00.000Z', fechaUltimaActualizacion: '2026-01-09T09:00:00.000Z',
+    estadoActual: 'Registrado', fechaRegistro: '2026-11-05T09:00:00.000Z', fechaUltimaActualizacion: '2026-11-05T09:00:00.000Z',
   }),
   baseEnvio('ENV-2026-0019', {
     remitente: { nombres: 'Agroexportadora Sur S.A.C.', documento: '20555666777', telefono: '054-123456', direccion: 'Carretera Panamericana Km 12, Ica' },
@@ -156,14 +156,14 @@ export const enviosMock = [
     origen: 'Ica', destino: 'Trujillo', tipoCarga: 'Alimentos procesados', descripcion: 'Conservas y enlatados',
     peso: 48, dimensiones: { largo: 75, ancho: 55, alto: 45, unidadMedida: 'cm' },
     clienteAsociado: { clienteId: 'cli_20555666777', documento: '20555666777', nombres: 'Agroexportadora Sur S.A.C.', telefono: '054-123456', direccion: 'Carretera Panamericana Km 12, Ica', empresa: 'Agroexportadora Sur' },
-    estadoActual: 'En tránsito', fechaRegistro: '2026-01-06T14:00:00.000Z', fechaUltimaActualizacion: '2026-01-08T20:00:00.000Z',
+    estadoActual: 'En tránsito', fechaRegistro: '2026-11-10T14:00:00.000Z', fechaUltimaActualizacion: '2026-11-13T20:00:00.000Z',
   }),
   baseEnvio('ENV-2026-0020', {
     remitente: { nombres: 'Pedro Antonio Sánchez López', documento: '45678901', telefono: '987654321', direccion: 'Calle Los Olivos 234, Arequipa' },
     destinatario: { nombres: 'Comercial Pacífico E.I.R.L.', documento: '20987654321', telefono: '01-2345678', direccion: 'Jr. Comercio 120, Callao' },
     origen: 'Arequipa', destino: 'Callao', tipoCarga: 'Minerales', descripcion: 'Muestras minerales para análisis',
     peso: 10, dimensiones: { largo: 25, ancho: 20, alto: 15, unidadMedida: 'cm' },
-    estadoActual: 'En almacén', fechaRegistro: '2026-01-08T17:00:00.000Z', fechaUltimaActualizacion: '2026-01-09T07:00:00.000Z',
+    estadoActual: 'En almacén', fechaRegistro: '2026-11-14T17:00:00.000Z', fechaUltimaActualizacion: '2026-11-15T07:00:00.000Z',
   }),
 ];
 

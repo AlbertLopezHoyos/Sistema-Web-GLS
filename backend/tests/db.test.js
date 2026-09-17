@@ -58,10 +58,10 @@ test('seed carga roles y estados demo', async (t) => {
 
 test('seed carga usuarios demo con bcrypt', async (t) => {
   if (!dbReady) { t.skip('MySQL no disponible'); return; }
-  const [rows] = await query(`SELECT email, password_hash FROM usuarios WHERE email = 'admin@demo-gls.local'`);
+  const [rows] = await query(`SELECT email, password_hash FROM usuarios WHERE email = 'jorge.salazar@gls.local'`);
   assert.equal(rows.length, 1);
   assert.ok(rows[0].password_hash.startsWith('$2'));
-  assert.ok(await bcrypt.compare('demo123', rows[0].password_hash));
+  assert.ok(await bcrypt.compare('Gls2026!', rows[0].password_hash));
 });
 
 test('SQL injection en email no altera consulta de login', async (t) => {

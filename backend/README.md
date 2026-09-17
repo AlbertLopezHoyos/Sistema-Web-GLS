@@ -46,7 +46,7 @@ Las migraciones crean la base indicada por `env.db.name` — no contienen nombre
 | `npm test` | Pruebas (NODE_ENV=test, base aislada) |
 | `npm run lint` | ESLint |
 | `npm run db:migrate` | Migraciones sobre `DB_NAME` |
-| `npm run db:seed` | Seeds demo |
+| `npm run db:seed` | Datos semilla iniciales |
 | `npm run db:reset` | DROP de la base del entorno actual (solo development/test) |
 
 ## Tests

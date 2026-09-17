@@ -8,7 +8,7 @@ import {
 } from '../src/utils/validation.js';
 
 test('validateEmail acepta correo válido', () => {
-  assert.equal(validateEmail('admin@demo-gls.local'), null);
+  assert.equal(validateEmail('jorge.salazar@gls.local'), null);
 });
 
 test('validateEmail rechaza correo inválido', () => {
@@ -17,7 +17,7 @@ test('validateEmail rechaza correo inválido', () => {
 
 test('validatePassword exige mínimo 6 caracteres', () => {
   assert.ok(validatePassword('123'));
-  assert.equal(validatePassword('demo123'), null);
+  assert.equal(validatePassword('Gls2026!'), null);
 });
 
 test('validateReceptorDocumento DNI y RUC', () => {

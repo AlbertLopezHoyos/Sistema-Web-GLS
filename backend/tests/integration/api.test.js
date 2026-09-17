@@ -48,9 +48,9 @@ before(async () => {
   app = (await import('../../src/app.js')).default;
   dbReady = true;
 
-  ({ cookie: adminCookie } = await loginAs(app, 'admin@demo-gls.local'));
-  ({ cookie: operacionesCookie } = await loginAs(app, 'operaciones@demo-gls.local'));
-  ({ cookie: consultaCookie } = await loginAs(app, 'consulta@demo-gls.local'));
+  ({ cookie: adminCookie } = await loginAs(app, 'jorge.salazar@gls.local'));
+  ({ cookie: operacionesCookie } = await loginAs(app, 'luis.mesia@gls.local'));
+  ({ cookie: consultaCookie } = await loginAs(app, 'consulta.test@gls.local'));
 });
 
 after(async () => {
@@ -79,21 +79,36 @@ describe('API integración', () => {
 
   test('login correcto', async (t) => {
     if (!dbReady) { t.skip('MySQL no disponible'); return; }
-    const { res } = await loginAs(app, 'admin@demo-gls.local');
+    const { res } = await loginAs(app, 'jorge.salazar@gls.local');
     assert.equal(res.status, 200);
     assert.ok(res.headers['set-cookie']);
-    assert.equal(res.body.data.user.email, 'admin@demo-gls.local');
+    assert.equal(res.body.data.user.email, 'jorge.salazar@gls.local');
   });
 
   test('login incorrecto', async (t) => {
     if (!dbReady) { t.skip('MySQL no disponible'); return; }
-    const res = await request(app).post('/api/auth/login').send({ email: 'admin@demo-gls.local', password: 'wrong1' });
+    const res = await request(app).post('/api/auth/login').send({ email: 'jorge.salazar@gls.local', password: 'wrong1' });
     assert.equal(res.status, 401);
   });
 
   test('usuario inactivo', async (t) => {
     if (!dbReady) { t.skip('MySQL no disponible'); return; }
-    const res = await request(app).post('/api/auth/login').send({ email: 'consulta2@demo-gls.local', password: 'demo123' });
+    const email = `inactivo_${Date.now()}@test.local`;
+    const createRes = await authRequest(app, 'post', '/api/usuarios', adminCookie).send({
+      nombres: 'Usuario Inactivo Test',
+      email,
+      password: 'Gls2026!',
+      rol: 'consulta',
+    });
+    assert.equal(createRes.status, 201);
+    const userId = createRes.body.data.id;
+    const deactivateRes = await authRequest(app, 'put', `/api/usuarios/${userId}`, adminCookie).send({
+      nombres: 'Usuario Inactivo Test',
+      rol: 'consulta',
+      activo: false,
+    });
+    assert.equal(deactivateRes.status, 200);
+    const res = await request(app).post('/api/auth/login').send({ email, password: 'Gls2026!' });
     assert.equal(res.status, 401);
   });
 
@@ -213,7 +228,7 @@ describe('API integración', () => {
   test('último admin no puede cambiar rol a operaciones', async (t) => {
     if (!dbReady) { t.skip('MySQL no disponible'); return; }
     const res = await authRequest(app, 'put', '/api/usuarios/usr_001', adminCookie).send({
-      nombres: 'Carlos Mendoza Ríos',
+      nombres: 'Jorge Salazar',
       rol: 'operaciones',
       activo: true,
     });
@@ -228,7 +243,7 @@ describe('API integración', () => {
   test('último admin no puede cambiar rol a consulta', async (t) => {
     if (!dbReady) { t.skip('MySQL no disponible'); return; }
     const res = await authRequest(app, 'put', '/api/usuarios/usr_001', adminCookie).send({
-      nombres: 'Carlos Mendoza Ríos',
+      nombres: 'Jorge Salazar',
       rol: 'consulta',
       activo: true,
     });
@@ -244,13 +259,13 @@ describe('API integración', () => {
     const createRes = await authRequest(app, 'post', '/api/usuarios', adminCookie).send({
       nombres: 'Admin Secundario Test',
       email,
-      password: 'demo123',
+      password: 'Gls2026!',
       rol: 'admin',
     });
     assert.equal(createRes.status, 201);
 
     const res = await authRequest(app, 'put', '/api/usuarios/usr_001', adminCookie).send({
-      nombres: 'Carlos Mendoza Ríos',
+      nombres: 'Jorge Salazar',
       rol: 'operaciones',
       activo: true,
     });
@@ -259,7 +274,7 @@ describe('API integración', () => {
 
     const { cookie: admin2Cookie } = await loginAs(app, email);
     const restore = await authRequest(app, 'put', '/api/usuarios/usr_001', admin2Cookie).send({
-      nombres: 'Carlos Mendoza Ríos',
+      nombres: 'Jorge Salazar',
       rol: 'admin',
       activo: true,
     });

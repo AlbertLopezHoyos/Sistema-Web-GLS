@@ -40,7 +40,7 @@ export const ReportesPage = () => {
 
   const getRows = () => (reporte?.envios || []).map(mapEnvioToRow);
 
-  const handleExport = (type) => {
+  const handleExport = async (type) => {
     const rows = getRows();
     if (!rows.length) {
       setExportMsg('No hay datos para exportar con los filtros actuales.');
@@ -48,12 +48,20 @@ export const ReportesPage = () => {
     }
     const ts = new Date().toISOString().slice(0, 10);
     const formats = { csv: 'CSV', excel: 'Excel', pdf: 'PDF' };
-    if (type === 'csv') exportCSV(rows, `reporte-gls-${ts}.csv`);
-    else if (type === 'excel') exportExcel(rows, `reporte-gls-${ts}.xlsx`);
-    else exportPDF(rows, 'Reporte de Envíos GLS', `reporte-gls-${ts}.pdf`);
-
-    reportesService.registrarExportacion(formats[type]).catch(() => {});
-    setExportMsg(`Exportación ${formats[type]} generada correctamente.`);
+    const exportOptions = {
+      reporte,
+      filters: { estado: estado && estado !== 'Todos' ? estado : '', desde, hasta, cliente },
+      filename: `reporte-gls-${ts}.${type === 'excel' ? 'xlsx' : type === 'pdf' ? 'pdf' : 'csv'}`,
+    };
+    try {
+      if (type === 'csv') exportCSV(rows, exportOptions.filename);
+      else if (type === 'excel') await exportExcel(rows, exportOptions);
+      else await exportPDF(rows, exportOptions);
+      reportesService.registrarExportacion(formats[type]).catch(() => {});
+      setExportMsg(`Exportación ${formats[type]} generada correctamente.`);
+    } catch {
+      setExportMsg('No se pudo generar la exportación.');
+    }
   };
 
   return (
