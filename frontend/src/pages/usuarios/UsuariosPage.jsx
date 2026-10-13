@@ -1,24 +1,32 @@
 import { useEffect, useState } from 'react';
-import { Plus, Edit, UserCheck, UserX } from 'lucide-react';
+import { Plus, Edit, UserCheck, UserX, Eye } from 'lucide-react';
 import { usuariosService } from '../../services/usuariosService';
 import { PageHeader } from '../../components/common/PageHeader';
 import { SearchInput } from '../../components/common/SearchInput';
+import { FiltersPanel } from '../../components/common/FiltersPanel';
+import { FiltersClearButton } from '../../components/common/FiltersClearButton';
 import { DataTable } from '../../components/common/DataTable';
 import { Pagination } from '../../components/common/Pagination';
 import { Button } from '../../components/common/Button';
 import { Modal } from '../../components/common/Modal';
 import { Input } from '../../components/common/Input';
 import { Select } from '../../components/common/Select';
+import { Card } from '../../components/common/Card';
+import { DataFieldGrid } from '../../components/common/DataFieldGrid';
+import { RecordDetailPanel } from '../../components/common/RecordDetailPanel';
+import { MasterDetailLayout } from '../../components/layout/MasterDetailLayout';
 import { Loader } from '../../components/common/Loader';
 import { Alert } from '../../components/common/Alert';
 import { usePagination } from '../../hooks/usePagination';
 import { useDebounce } from '../../hooks/useDebounce';
 import { ROLE_LABELS, ROLES, ALL_ROLES } from '../../constants/roles';
+import { formatDateTime } from '../../utils/formatters';
 
 export const UsuariosPage = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editUser, setEditUser] = useState(null);
   const [form, setForm] = useState({ nombres: '', email: '', password: '', rol: ROLES.OPERACIONES });
@@ -92,28 +100,73 @@ export const UsuariosPage = () => {
     <div className="page">
       <PageHeader title="Administración de usuarios" subtitle="Gestión de cuentas del sistema" actions={<Button icon={Plus} onClick={openCreate}>Nuevo usuario</Button>} />
       {alert && <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />}
-      <SearchInput value={search} onChange={setSearch} placeholder="Buscar por nombre o correo..." />
-      {loading ? <Loader /> : (
-        <>
-          <DataTable
-            columns={[
-              { key: 'nombres', label: 'Nombre' },
-              { key: 'email', label: 'Correo' },
-              { key: 'rol', label: 'Rol', render: (r) => ROLE_LABELS[r.rol] },
-              { key: 'activo', label: 'Estado', render: (r) => r.activo ? <span className="badge badge-green">Activo</span> : <span className="badge badge-gray">Inactivo</span> },
-            ]}
-            data={paginatedItems}
-            actions={(row) => (
-              <div className="table-actions">
-                <button type="button" className="btn btn-ghost btn-sm" onClick={() => openEdit(row)} title="Editar"><Edit size={16} /></button>
-                <button type="button" className="btn btn-ghost btn-sm" onClick={() => handleToggle(row)} title={row.activo ? 'Desactivar' : 'Activar'}>
-                  {row.activo ? <UserX size={16} /> : <UserCheck size={16} />}
-                </button>
-              </div>
-            )}
-          />
-          <Pagination page={page} totalPages={totalPages} onPageChange={goToPage} />
-        </>
+      <FiltersPanel
+        title="Buscar usuarios"
+        actions={<FiltersClearButton visible={Boolean(search.trim())} onClear={() => setSearch('')} />}
+      >
+        <SearchInput
+          label="Usuario"
+          value={search}
+          onChange={setSearch}
+          placeholder="Nombre o correo…"
+          className="filters-field--search-wide"
+        />
+      </FiltersPanel>
+      {loading ? (
+        <Loader />
+      ) : (
+        <MasterDetailLayout
+          list={
+            <>
+              <DataTable
+                compact
+                selectedRowKey={selected?.id}
+                getRowKey={(row) => row.id}
+                onRowClick={setSelected}
+                columns={[
+                  { key: 'nombres', label: 'Nombre' },
+                  { key: 'email', label: 'Correo' },
+                  { key: 'rol', label: 'Rol', render: (r) => ROLE_LABELS[r.rol] },
+                  { key: 'activo', label: 'Estado', render: (r) => (r.activo ? <span className="badge badge-green">Activo</span> : <span className="badge badge-gray">Inactivo</span>) },
+                ]}
+                data={paginatedItems}
+                actions={(row) => (
+                  <div className="table-actions">
+                    <button type="button" className="btn btn-ghost btn-sm" onClick={() => setSelected(row)} title="Ver detalle">
+                      <Eye size={16} />
+                    </button>
+                    <button type="button" className="btn btn-ghost btn-sm" onClick={() => openEdit(row)} title="Editar"><Edit size={16} /></button>
+                    <button type="button" className="btn btn-ghost btn-sm" onClick={() => handleToggle(row)} title={row.activo ? 'Desactivar' : 'Activar'}>
+                      {row.activo ? <UserX size={16} /> : <UserCheck size={16} />}
+                    </button>
+                  </div>
+                )}
+              />
+              <Pagination page={page} totalPages={totalPages} onPageChange={goToPage} />
+            </>
+          }
+          detail={
+            <RecordDetailPanel
+              label="Usuario"
+              title={selected?.nombres}
+              actions={selected && <Button variant="secondary" onClick={() => openEdit(selected)}>Editar</Button>}
+            >
+              {selected && (
+                <Card title="Datos de la cuenta">
+                  <DataFieldGrid
+                    fields={[
+                      ['Correo', selected.email],
+                      ['Rol', ROLE_LABELS[selected.rol]],
+                      ['Estado', selected.activo ? 'Activo' : 'Inactivo'],
+                      ['Alta', formatDateTime(selected.createdAt)],
+                      ['Última actualización', formatDateTime(selected.updatedAt)],
+                    ]}
+                  />
+                </Card>
+              )}
+            </RecordDetailPanel>
+          }
+        />
       )}
       <Modal
         isOpen={modalOpen}

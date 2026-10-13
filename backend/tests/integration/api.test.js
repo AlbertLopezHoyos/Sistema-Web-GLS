@@ -142,6 +142,18 @@ describe('API integración', () => {
     assert.match(res.body.data.codigoEnvio, /^ENV-\d{4}-\d{4}$/);
   });
 
+  test('buscar participante por documento en envíos anteriores', async (t) => {
+    if (!dbReady) { t.skip('MySQL no disponible'); return; }
+    const payload = sampleEnvio();
+    await authRequest(app, 'post', '/api/envios', operacionesCookie).send(payload);
+    const res = await authRequest(app, 'get', '/api/envios/participantes/buscar', operacionesCookie)
+      .query({ rol: 'remitente', q: payload.remitente.documento });
+    assert.equal(res.status, 200);
+    assert.ok(res.body.data.matches.length >= 1);
+    assert.equal(res.body.data.matches[0].documento, payload.remitente.documento);
+    assert.equal(res.body.data.matches[0].nombres, payload.remitente.nombres);
+  });
+
   test('historial inicial Registrado', async (t) => {
     if (!dbReady) { t.skip('MySQL no disponible'); return; }
     const create = await authRequest(app, 'post', '/api/envios', operacionesCookie).send(sampleEnvio());
@@ -156,7 +168,11 @@ describe('API integración', () => {
     const create = await authRequest(app, 'post', '/api/envios', operacionesCookie).send(sampleEnvio());
     const codigo = create.body.data.codigoEnvio;
     const res = await authRequest(app, 'post', `/api/envios/${codigo}/estado`, operacionesCookie).send({
-      estado: 'Entregado', observacion: 'Entrega sin evidencia',
+      estado: 'Entregado',
+      observacion: 'Entrega sin evidencia',
+      direccion: 'Lima',
+      latitud: -12.0464,
+      longitud: -77.0428,
     });
     assert.equal(res.status, 400);
   });
@@ -171,9 +187,15 @@ describe('API integración', () => {
       evidenciaReferencia: 'ACTA-001',
       receptorNombre: 'Juan Pérez',
       receptorDocumento: '12345678',
+      direccion: 'Punto entrega Lima',
+      latitud: -12.0464,
+      longitud: -77.0428,
     });
     assert.equal(res.status, 200);
     assert.equal(res.body.data.envio.estadoActual, 'Entregado');
+    assert.ok(res.body.data.ubicacion?.direccion);
+    const ub = await authRequest(app, 'get', `/api/envios/${codigo}/ubicaciones`, operacionesCookie);
+    assert.ok(ub.body.data.length >= 1);
   });
 
   test('coordenadas inválidas → 400', async (t) => {

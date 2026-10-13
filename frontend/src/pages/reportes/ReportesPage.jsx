@@ -17,6 +17,12 @@ import { TrendChart } from '../../components/charts/TrendChart';
 import { exportCSV, exportExcel, exportPDF, mapEnvioToRow } from '../../utils/exportUtils';
 import { formatDateTime } from '../../utils/formatters';
 import { SHIPMENT_STATUSES } from '../../constants/shipmentStatus';
+import { FiltersClearButton } from '../../components/common/FiltersClearButton';
+import { FiltersPanel } from '../../components/common/FiltersPanel';
+import { MasterDetailLayout } from '../../components/layout/MasterDetailLayout';
+import { EnvioConsultaPanel } from '../../components/envios/EnvioConsultaPanel';
+import { enviosService } from '../../services/enviosService';
+import { Eye } from 'lucide-react';
 
 export const ReportesPage = () => {
   const [reporte, setReporte] = useState(null);
@@ -26,6 +32,9 @@ export const ReportesPage = () => {
   const [hasta, setHasta] = useState('');
   const [cliente, setCliente] = useState('');
   const [exportMsg, setExportMsg] = useState('');
+  const [selectedCodigo, setSelectedCodigo] = useState(null);
+  const [selectedEnvio, setSelectedEnvio] = useState(null);
+  const [detailLoading, setDetailLoading] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -37,6 +46,22 @@ export const ReportesPage = () => {
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    if (!selectedCodigo) {
+      setSelectedEnvio(null);
+      return;
+    }
+    let cancelled = false;
+    setDetailLoading(true);
+    enviosService.getEnvioById(selectedCodigo).then((e) => {
+      if (!cancelled) {
+        setSelectedEnvio(e);
+        setDetailLoading(false);
+      }
+    });
+    return () => { cancelled = true; };
+  }, [selectedCodigo]);
 
   const getRows = () => (reporte?.envios || []).map(mapEnvioToRow);
 
@@ -51,7 +76,7 @@ export const ReportesPage = () => {
     const exportOptions = {
       reporte,
       filters: { estado: estado && estado !== 'Todos' ? estado : '', desde, hasta, cliente },
-      filename: `reporte-gls-${ts}.${type === 'excel' ? 'xlsx' : type === 'pdf' ? 'pdf' : 'csv'}`,
+      filename: `reporte-envios-${ts}.${type === 'excel' ? 'xlsx' : type === 'pdf' ? 'pdf' : 'csv'}`,
     };
     try {
       if (type === 'csv') exportCSV(rows, exportOptions.filename);
@@ -64,21 +89,43 @@ export const ReportesPage = () => {
     }
   };
 
+  const hasFilters = Boolean((estado && estado !== 'Todos') || desde || hasta || cliente);
+  const clearFilters = () => {
+    setEstado('');
+    setDesde('');
+    setHasta('');
+    setCliente('');
+  };
+
   return (
     <div className="page">
       <PageHeader title="Reportes" subtitle="Análisis y exportación de datos operativos" />
       {exportMsg && <Alert type={exportMsg.includes('No hay') ? 'warning' : 'success'} message={exportMsg} onClose={() => setExportMsg('')} />}
-      <div className="filters-bar">
-        <Select id="estado" value={estado} onChange={(e) => setEstado(e.target.value)} placeholder="Todos los estados" options={['Todos', ...SHIPMENT_STATUSES]} />
+      <FiltersPanel
+        title="Filtros del reporte"
+        actions={(
+          <>
+            <Button type="button" onClick={() => load()}>Buscar</Button>
+            <FiltersClearButton visible={hasFilters} onClear={clearFilters} />
+            <div className="export-buttons">
+              <Button variant="secondary" icon={Download} onClick={() => handleExport('csv')}>Exportar CSV</Button>
+              <Button variant="secondary" icon={FileSpreadsheet} onClick={() => handleExport('excel')}>Exportar Excel</Button>
+              <Button variant="secondary" icon={FileText} onClick={() => handleExport('pdf')}>Exportar PDF</Button>
+            </div>
+          </>
+        )}
+      >
+        <Select id="estado" label="Estado" value={estado} onChange={(e) => setEstado(e.target.value)} placeholder="Todos los estados" options={['Todos', ...SHIPMENT_STATUSES]} />
         <Input id="desde" label="Desde" type="date" value={desde} onChange={(e) => setDesde(e.target.value)} />
         <Input id="hasta" label="Hasta" type="date" value={hasta} onChange={(e) => setHasta(e.target.value)} />
-        <SearchInput value={cliente} onChange={setCliente} placeholder="Filtrar por cliente..." />
-        <div className="export-buttons">
-          <Button variant="secondary" icon={Download} onClick={() => handleExport('csv')}>Exportar CSV</Button>
-          <Button variant="secondary" icon={FileSpreadsheet} onClick={() => handleExport('excel')}>Exportar Excel</Button>
-          <Button variant="secondary" icon={FileText} onClick={() => handleExport('pdf')}>Exportar PDF</Button>
-        </div>
-      </div>
+        <SearchInput
+          label="Cliente"
+          value={cliente}
+          onChange={setCliente}
+          placeholder="Filtrar por cliente…"
+          className="filters-field--search-wide"
+        />
+      </FiltersPanel>
       {loading ? <Loader /> : reporte && (
         <>
           <div className="stats-grid">
@@ -92,17 +139,38 @@ export const ReportesPage = () => {
             <Card title="Tendencia mensual"><TrendChart porMes={reporte.porMes} /></Card>
           </div>
           <Card title="Detalle de envíos">
-            <DataTable
-              columns={[
-                { key: 'codigoEnvio', label: 'Código' },
-                { key: 'estadoActual', label: 'Estado', render: (r) => <Badge status={r.estadoActual} /> },
-                { key: 'origen', label: 'Origen' },
-                { key: 'destino', label: 'Destino' },
-                { key: 'fechaRegistro', label: 'Fecha', render: (r) => formatDateTime(r.fechaRegistro) },
-                { key: 'peso', label: 'Peso (kg)' },
-              ]}
-              data={reporte.envios}
-              emptyMessage="No hay envíos que coincidan con los filtros seleccionados."
+            <MasterDetailLayout
+              list={
+                <DataTable
+                  compact
+                  selectedRowKey={selectedCodigo}
+                  getRowKey={(row) => row.codigoEnvio}
+                  onRowClick={(row) => setSelectedCodigo(row.codigoEnvio)}
+                  columns={[
+                    { key: 'codigoEnvio', label: 'Código' },
+                    { key: 'estadoActual', label: 'Estado', render: (r) => <Badge status={r.estadoActual} /> },
+                    { key: 'origen', label: 'Origen' },
+                    { key: 'destino', label: 'Destino' },
+                    { key: 'fechaRegistro', label: 'Fecha', render: (r) => formatDateTime(r.fechaRegistro) },
+                    { key: 'peso', label: 'Peso (kg)' },
+                  ]}
+                  data={reporte.envios}
+                  emptyMessage="No hay envíos que coincidan con los filtros seleccionados."
+                  actions={(row) => (
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-sm"
+                      title="Ver detalle"
+                      onClick={() => setSelectedCodigo(row.codigoEnvio)}
+                    >
+                      <Eye size={16} />
+                    </button>
+                  )}
+                />
+              }
+              detail={
+                <EnvioConsultaPanel envio={selectedEnvio} loading={detailLoading} codigo={selectedCodigo} />
+              }
             />
           </Card>
         </>

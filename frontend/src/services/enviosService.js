@@ -65,4 +65,8 @@ export const enviosService = {
   async getDashboardStats() {
     return apiClient.get('/envios/dashboard');
   },
+
+  async buscarParticipante(rol, q) {
+    return apiClient.get('/envios/participantes/buscar', { rol, q });
+  },
 };

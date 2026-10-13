@@ -8,6 +8,7 @@ const router = Router();
 router.use(requireAuth);
 router.get('/activos', enviosController.listActivos);
 router.get('/dashboard', enviosController.dashboard);
+router.get('/participantes/buscar', enviosController.buscarParticipante);
 router.get('/', enviosController.list);
 router.get('/:codigo/historial', enviosController.historial);
 router.get('/:codigo/ubicaciones/ultima', enviosController.ultimaUbicacion);

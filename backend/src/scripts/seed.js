@@ -27,7 +27,7 @@ const seedUsuarios = async () => {
     await query(
       `INSERT INTO usuarios (id, email, nombres, rol_id, activo, password_hash, created_at, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-       ON DUPLICATE KEY UPDATE nombres = VALUES(nombres), activo = VALUES(activo), password_hash = VALUES(password_hash)`,
+       ON DUPLICATE KEY UPDATE email = VALUES(email), nombres = VALUES(nombres), rol_id = VALUES(rol_id), activo = VALUES(activo), password_hash = VALUES(password_hash)`,
       [u.id, u.email, u.nombres, rolId, u.activo ? 1 : 0, hash, new Date(u.createdAt), new Date(u.updatedAt)]
     );
   }

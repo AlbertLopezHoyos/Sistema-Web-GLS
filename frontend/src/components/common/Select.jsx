@@ -8,7 +8,7 @@ export const Select = ({
   className = '',
   ...props
 }) => (
-  <div className={`form-group ${className}`}>
+  <div className={`form-group filters-field filters-field--select ${className}`.trim()}>
     {label && (
       <label htmlFor={id} className="form-label">
         {label}

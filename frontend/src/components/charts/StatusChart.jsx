@@ -5,39 +5,41 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import { buildStatusChartData, statusLegendRows } from '../../utils/chartReportConfig';
+import { Badge } from '../common/Badge';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const COLORS = ['#2563eb', '#ca8a04', '#f57c00', '#ea580c', '#16a34a', '#dc2626', '#64748b'];
-
 export const StatusChart = ({ porEstado }) => {
-  const labels = Object.keys(porEstado);
-  const data = Object.values(porEstado);
+  const chartData = buildStatusChartData(porEstado);
+  const legendRows = statusLegendRows(porEstado);
 
-  if (!labels.length) {
+  if (!chartData.labels.length) {
     return <div className="chart-empty">Sin datos para mostrar</div>;
   }
 
   return (
-    <div className="chart-container">
+    <div className="chart-container chart-container--status" data-export-chart="status">
       <Doughnut
-        data={{
-          labels,
-          datasets: [{
-            data,
-            backgroundColor: COLORS.slice(0, labels.length),
-            borderWidth: 2,
-            borderColor: '#fff',
-          }],
-        }}
+        data={chartData}
         options={{
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12 } },
+            legend: { display: false },
+            tooltip: { enabled: true },
           },
         }}
       />
+      <ul className="status-chart-legend" aria-label="Leyenda por estado">
+        {legendRows.map(({ estado, cantidad, color }) => (
+          <li key={estado} className="status-chart-legend-item">
+            <span className="status-chart-legend-swatch" style={{ backgroundColor: color }} aria-hidden />
+            <Badge status={estado} />
+            <span className="status-chart-legend-count">{cantidad}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };

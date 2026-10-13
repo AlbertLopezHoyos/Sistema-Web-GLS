@@ -8,6 +8,7 @@ import { ValidationError } from '../utils/errors.js';
 import { auditService } from './auditService.js';
 import { clientesService } from './clientesService.js';
 import { enviosRepository } from '../repositories/enviosRepository.js';
+import { clientesRepository } from '../repositories/clientesRepository.js';
 
 const AREA_DEFAULT = 'Área de operaciones';
 const INITIAL_STATUS = 'Registrado';
@@ -55,6 +56,45 @@ export const enviosService = {
   async getEnviosActivos() {
     const rows = await enviosRepository.findActivos(ACTIVE_STATUSES);
     return rows.map(mapRow);
+  },
+
+  async buscarParticipante(rol, q) {
+    const trimmed = q?.trim();
+    if (!trimmed) throw new ValidationError({ q: 'Ingrese DNI, RUC o nombre para buscar' });
+    if (rol !== 'remitente' && rol !== 'destinatario') {
+      throw new ValidationError({ rol: 'Rol inválido' });
+    }
+
+    const docNorm = trimmed.replace(/\s/g, '').toLowerCase();
+    const fromEnvios = await enviosRepository.findPartiesByRole(rol, trimmed, 8);
+    const fromClientes = await clientesRepository.search(trimmed);
+
+    const byDoc = new Map();
+    const add = (party, fuente) => {
+      const doc = party.documento?.trim();
+      if (!doc || byDoc.has(doc)) return;
+      byDoc.set(doc, {
+        nombres: party.nombres,
+        documento: party.documento,
+        telefono: party.telefono,
+        direccion: party.direccion,
+        fuente,
+      });
+    };
+
+    fromEnvios.forEach((row) => add(row, 'envio'));
+    fromClientes.forEach((row) => add(row, 'cliente'));
+
+    let matches = Array.from(byDoc.values());
+    const exactDoc = matches.filter((m) => m.documento.replace(/\s/g, '').toLowerCase() === docNorm);
+    if (exactDoc.length) matches = exactDoc;
+    else {
+      const nameLower = trimmed.toLowerCase();
+      const byName = matches.filter((m) => m.nombres?.toLowerCase().includes(nameLower));
+      if (byName.length) matches = byName;
+    }
+
+    return { matches: matches.slice(0, 5) };
   },
 
   async createEnvio(data, actor) {

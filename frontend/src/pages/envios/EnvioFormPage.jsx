@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Download, Eye, Plus } from 'lucide-react';
+import { Download, Eye, Plus, Users } from 'lucide-react';
 import { clientesService } from '../../services/clientesService';
 import { enviosService, validateEnvioForm } from '../../services/enviosService';
 import { PageHeader } from '../../components/common/PageHeader';
@@ -14,6 +14,7 @@ import { downloadComprobanteEnvio } from '../../utils/comprobanteEnvio';
 import { DIMENSION_UNITS, CURRENCIES, DEFAULT_TARIFF } from '../../constants/appConfig';
 import { calcularCotizacion } from '../../utils/cotizacionEnvio';
 import { ROUTES } from '../../constants/routes';
+import { PartyLookupPanel } from '../../components/envios/PartyLookupPanel';
 
 const emptyParty = { nombres: '', documento: '', telefono: '', direccion: '' };
 const REQUIRED_LAST_TAB = 1; // 0: Cliente, 1: Datos del envío (2 y 3 opcionales)
@@ -47,7 +48,7 @@ export const EnvioFormPage = () => {
   const tabs = ['Cliente', 'Datos del envío', 'Cotización estimada', 'Observaciones'];
 
   const handleChange = (field, value) => setForm((p) => ({ ...p, [field]: value }));
-  const handleParty = (party, field, value) => setForm((p) => ({ ...p, [party]: { ...p[party], [field]: value } }));
+  const setParty = (party, data) => setForm((p) => ({ ...p, [party]: { ...data } }));
   const handleDim = (field, value) => setForm((p) => ({ ...p, dimensiones: { ...p.dimensiones, [field]: value } }));
   const handleCot = (field, value) => setForm((p) => ({ ...p, cotizacion: { ...p.cotizacion, [field]: value } }));
 
@@ -216,7 +217,10 @@ export const EnvioFormPage = () => {
 
   return (
     <div className="page">
-      <PageHeader title="Registrar envío" subtitle="Complete los datos del nuevo envío" />
+      <PageHeader
+        title="Registro de envíos"
+        subtitle="Registre remitente, destinatario y datos del envío. El sistema generará el código y el comprobante."
+      />
       {tabError && <Alert type="warning" message={tabError} onClose={() => setTabError('')} />}
       <div className="tabs">
         {tabs.map((t, i) => (
@@ -225,21 +229,41 @@ export const EnvioFormPage = () => {
       </div>
       <form className="form-sections" onSubmit={handleSubmitRequest}>
         {activeTab === 0 && (
-          <section className="form-section">
-            <Select id="cliente" label="Seleccionar cliente registrado" value={form.clienteDocumento} onChange={(e) => handleClienteSelect(e.target.value)} placeholder="— Sin cliente —" options={clientes.map((c) => ({ value: c.documento, label: `${c.documento} — ${c.nombres}` }))} />
-            <h4>Remitente</h4>
-            <div className="form-grid">
-              <Input id="r_nombres" label="Nombres completos" required value={form.remitente.nombres} onChange={(e) => handleParty('remitente', 'nombres', e.target.value)} error={errors.remitente_nombres} />
-              <Input id="r_documento" label="Documento" required value={form.remitente.documento} onChange={(e) => handleParty('remitente', 'documento', e.target.value)} error={errors.remitente_documento} />
-              <Input id="r_telefono" label="Teléfono" required value={form.remitente.telefono} onChange={(e) => handleParty('remitente', 'telefono', e.target.value)} error={errors.remitente_telefono} />
-              <Input id="r_direccion" label="Dirección" required value={form.remitente.direccion} onChange={(e) => handleParty('remitente', 'direccion', e.target.value)} error={errors.remitente_direccion} />
-            </div>
-            <h4>Destinatario</h4>
-            <div className="form-grid">
-              <Input id="d_nombres" label="Nombres completos" required value={form.destinatario.nombres} onChange={(e) => handleParty('destinatario', 'nombres', e.target.value)} error={errors.destinatario_nombres} />
-              <Input id="d_documento" label="Documento" required value={form.destinatario.documento} onChange={(e) => handleParty('destinatario', 'documento', e.target.value)} error={errors.destinatario_documento} />
-              <Input id="d_telefono" label="Teléfono" required value={form.destinatario.telefono} onChange={(e) => handleParty('destinatario', 'telefono', e.target.value)} error={errors.destinatario_telefono} />
-              <Input id="d_direccion" label="Dirección" required value={form.destinatario.direccion} onChange={(e) => handleParty('destinatario', 'direccion', e.target.value)} error={errors.destinatario_direccion} />
+          <section className="form-section envio-cliente-tab">
+            <Card title="Cliente (catálogo)">
+              <div className="cliente-catalog-row">
+                <Select
+                  id="cliente"
+                  label="Seleccionar cliente registrado"
+                  value={form.clienteDocumento}
+                  onChange={(e) => handleClienteSelect(e.target.value)}
+                  placeholder="Sin asociación a catálogo"
+                  options={clientes.map((c) => ({ value: c.documento, label: `${c.documento} — ${c.nombres}` }))}
+                />
+                <Link to={ROUTES.CLIENTES} className="btn btn-secondary btn-sm cliente-manage-link">
+                  <Users size={16} aria-hidden />
+                  Gestionar clientes
+                </Link>
+              </div>
+              <p className="text-muted envio-cliente-help">
+                Opcional: asocie un cliente del catálogo. También puede buscar por DNI en remitente o destinatario para autocompletar desde envíos anteriores.
+              </p>
+            </Card>
+            <div className="party-lookup-grid">
+              <PartyLookupPanel
+                title="Datos del remitente"
+                rol="remitente"
+                party={form.remitente}
+                onPartyChange={(data) => setParty('remitente', data)}
+                errors={errors}
+              />
+              <PartyLookupPanel
+                title="Datos del destinatario"
+                rol="destinatario"
+                party={form.destinatario}
+                onPartyChange={(data) => setParty('destinatario', data)}
+                errors={errors}
+              />
             </div>
           </section>
         )}

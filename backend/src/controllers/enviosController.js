@@ -29,6 +29,14 @@ export const enviosController = {
     }
   },
 
+  async buscarParticipante(req, res, next) {
+    try {
+      ok(res, await enviosService.buscarParticipante(req.query.rol, req.query.q));
+    } catch (err) {
+      next(err);
+    }
+  },
+
   async historial(req, res, next) {
     try {
       ok(res, await trazabilidadService.getHistorialByEnvio(req.params.codigo));

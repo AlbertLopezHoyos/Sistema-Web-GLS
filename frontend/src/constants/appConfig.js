@@ -1,6 +1,10 @@
 export const APP_NAME = 'Sistema Web GLS';
 export const APP_TITLE =
   'Sistema de información para el seguimiento y trazabilidad de envíos';
+export const SYSTEM_HEADER_TITLE =
+  'Sistema de Información para el Seguimiento y Trazabilidad de Envíos en el Área de Operaciones';
+export const SYSTEM_HEADER_SUBTITLE =
+  'GRUPO LOGÍSTICO SALAZAR S.A.C. · Área de Operaciones · Gestión de información logística';
 export const COMPANY_NAME = 'GRUPO LOGÍSTICO SALAZAR S.A.C.';
 export const COMPANY_SHORT = 'Grupo Logístico Salazar';
 export const AREA_DEFAULT = 'Área de operaciones';

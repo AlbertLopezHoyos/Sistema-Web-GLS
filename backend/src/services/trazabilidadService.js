@@ -1,6 +1,7 @@
 import { getConnection } from '../config/db.js';
-import { mapHistorial } from '../utils/mappers.js';
-import { validateRequired, validateReceptorDocumento } from '../utils/validation.js';
+import { mapHistorial, mapUbicacion } from '../utils/mappers.js';
+import { validateRequired, validateReceptorDocumento, validateLatLng } from '../utils/validation.js';
+import { ubicacionesRepository } from '../repositories/ubicacionesRepository.js';
 import { ValidationError, NotFoundError } from '../utils/errors.js';
 import { auditService } from './auditService.js';
 import { enviosService } from './enviosService.js';
@@ -47,6 +48,11 @@ export const trazabilidadService = {
       if (recDoc) errors.receptorDocumento = recDoc;
     }
 
+    const dirUb = validateRequired(data.direccion, 'Dirección de ubicación');
+    if (dirUb) errors.direccion = dirUb;
+    const latLng = validateLatLng(data.latitud, data.longitud);
+    if (latLng) errors.coordenadas = latLng;
+
     if (Object.keys(errors).length) throw new ValidationError(errors);
 
     const conn = await getConnection();
@@ -88,6 +94,22 @@ export const trazabilidadService = {
         actor?.email || 'sistema', actor?.id || null,
       ]);
 
+      const ubicacionId = `${codigo}__ub__${now.toISOString()}`;
+      const ubicObs = (data.ubicacionObservacion || data.observacion || '').trim()
+        || `Punto de control — ${data.estado}`;
+      await ubicacionesRepository.insert([
+        ubicacionId,
+        envioRow.id,
+        data.direccion.trim(),
+        Number(data.latitud),
+        Number(data.longitud),
+        ubicObs,
+        now,
+        AREA_DEFAULT,
+        actor?.email || 'sistema',
+        actor?.id || null,
+      ]);
+
       await auditService.registrar({
         accion: 'estado_actualizado',
         modulo: 'Trazabilidad',
@@ -97,11 +119,21 @@ export const trazabilidadService = {
         rol: actor?.rol || '',
       }, conn);
 
+      await auditService.registrar({
+        accion: 'ubicacion_registrada',
+        modulo: 'Geolocalización',
+        descripcion: `Ubicación registrada al actualizar estado de ${codigo}`,
+        usuarioId: actor?.id,
+        usuarioEmail: actor?.email || '',
+        rol: actor?.rol || '',
+      }, conn);
+
       await conn.commit();
 
       const envio = await enviosService.getEnvioByCodigo(codigo);
       const histRow = await trazabilidadRepository.findHistorialById(historialId);
-      return { envio, evento: mapHistorial(histRow) };
+      const ubRow = await ubicacionesRepository.findById(ubicacionId);
+      return { envio, evento: mapHistorial(histRow), ubicacion: ubRow ? mapUbicacion(ubRow) : null };
     } catch (err) {
       await conn.rollback();
       throw err;

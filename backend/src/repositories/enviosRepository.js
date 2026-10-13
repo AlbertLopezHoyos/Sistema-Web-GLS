@@ -150,4 +150,29 @@ export const enviosRepository = {
     );
     return rows[0]?.total || 0;
   },
+
+  /** Personas que aparecieron como remitente o destinatario en envíos anteriores */
+  async findPartiesByRole(rol, q, limit = 5) {
+    const role = rol === 'destinatario' ? 'destinatario' : 'remitente';
+    const nombresCol = `${role}_nombres`;
+    const docCol = `${role}_documento`;
+    const telCol = `${role}_telefono`;
+    const dirCol = `${role}_direccion`;
+    const trimmed = q.trim();
+    const like = `%${trimmed.toLowerCase()}%`;
+    const docLike = `%${trimmed.replace(/\s/g, '')}%`;
+    const docExact = trimmed.replace(/\s/g, '');
+
+    const [rows] = await query(
+      `SELECT ${nombresCol} AS nombres, ${docCol} AS documento, ${telCol} AS telefono, ${dirCol} AS direccion,
+              MAX(fecha_registro) AS last_used
+       FROM envios
+       WHERE LOWER(${nombresCol}) LIKE ? OR ${docCol} LIKE ? OR ${docCol} = ?
+       GROUP BY ${docCol}, ${nombresCol}, ${telCol}, ${dirCol}
+       ORDER BY last_used DESC
+       LIMIT ?`,
+      [like, docLike, docExact, limit]
+    );
+    return rows;
+  },
 };
